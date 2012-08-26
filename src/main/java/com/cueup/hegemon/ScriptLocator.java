@@ -11,9 +11,9 @@ import java.net.URL;
  */
 public abstract class ScriptLocator {
 
-  URL getScript(String name) {
+  public URL getScript(String name) {
     return getFile(name + ".js");
   }
 
-  abstract URL getFile(String name);
+  public abstract URL getFile(String name);
 }

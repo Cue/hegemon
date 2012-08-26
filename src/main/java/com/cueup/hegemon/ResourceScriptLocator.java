@@ -11,15 +11,16 @@ import java.net.URL;
 public class ResourceScriptLocator extends  ScriptLocator {
   private final File rootDir;
 
-  ResourceScriptLocator() {
+  protected ResourceScriptLocator() {
     this.rootDir = new File("");
   }
 
-  ResourceScriptLocator(String rootDir) {
+  protected ResourceScriptLocator(String rootDir) {
     this.rootDir = new File(rootDir);
   }
+
   @Override
-  URL getFile(String name) {
+  public URL getFile(String name) {
     try {
 
       return new URL(getClass().getResource("/"), new File(this.rootDir, name).getPath());
