@@ -29,45 +29,79 @@ import java.util.Set;
  */
 public class Script {
 
-  private static final Log log = LogFactory.getLog(Script.class);
+  /**
+   * Logging.
+   */
+  private static final Log LOG = LogFactory.getLog(Script.class);
 
+  /**
+   * Allows for user defined script location.
+   */
   private final ScriptLocator locator;
 
+  /**
+   * The 'global' scope for this script.
+   * Scripts are evaluated in this context.
+   */
   private final Scriptable sharedScope;
 
+  /**
+   * Whether a script has already been loaded into this context.
+   */
   private final Set<String> loaded;
-// TODO(kevinclark): Re-enable this. Requires extracting KeyedTimers from greplin common.
-//                   Plus metrics dependency.
-//  @ReferencedByJavascript
-//  public static final KeyedTimers<String> TIMERS = new KeyedTimers<String>(
-//      Script.class, "jsTimers", TimeUnit.MILLISECONDS, TimeUnit.MINUTES);
 
-
+  /**
+   * Where we keep values that need to exist cross script invocations.
+   */
   @ReferencedByJavascript
-  public static final Cache<ValueName, Object> STATIC_VALUES = CacheBuilder.newBuilder().build();
+  public static final Cache<ValueName, Object> STATIC_VALUES =
+      CacheBuilder.newBuilder().build();
 
 
   // TODO(kevinclark): lambda l: try: l(enterContext()) finally: exitContext()
-  // Use these wrappers instead of Context.enter / Context.exit to ensure correct version is used.
+  // Use these wrappers instead of Context.enter / Context.exit
+  // to ensure correct version is used.
+
+
+  /**
+   * Enter a new lexical context.
+   * @return the context object.
+   */
   public static Context enterContext() {
     final Context context = Context.enter();
     context.setLanguageVersion(Context.VERSION_1_8);
     return context;
   }
 
+
+  /**
+   * Exit the current context.
+   */
   public static void exitContext() {
     Context.exit();
   }
 
-  public Script(String source, ScriptLocator locator, String... globalFiles) throws IOException {
+
+  /**
+   * Load a new script context from a source, found with a locator,
+   * loading globalFiles.
+   * @param source - The source code to be run.
+   * @param locator - How to find any files loaded.
+   * @param globalFiles - Files to load to run this source.
+   * @throws IOException when files don't load properly.
+   */
+  public Script(final String source, final ScriptLocator locator,
+                final String... globalFiles) throws IOException {
     this.locator = locator;
     this.loaded = Sets.newHashSet();
 
     Context context = enterContext();
     try {
       this.sharedScope = context.initStandardObjects();
-      ScriptableObject.putProperty(this.sharedScope, "log", Context.javaToJS(log, this.sharedScope));
-      ScriptableObject.putProperty(this.sharedScope, "hegemon", Context.javaToJS(this, this.sharedScope));
+      ScriptableObject.putProperty(this.sharedScope, "log",
+          Context.javaToJS(LOG, this.sharedScope));
+      ScriptableObject.putProperty(this.sharedScope, "hegemon",
+          Context.javaToJS(this, this.sharedScope));
 
       for (String globalFile : globalFiles) {
         load(globalFile);
@@ -79,7 +113,13 @@ public class Script {
     }
   }
 
-  public void load(String filename) throws IOException {
+
+  /**
+   * Load the script located with the Script's locator with the given filename.
+   * @param filename - the file to load.
+   * @throws IOException when unable to load the associated resource.
+   */
+  public void load(final String filename) throws IOException {
     if (this.loaded.contains(filename)) {
       return;
     }
@@ -98,11 +138,25 @@ public class Script {
     }
   }
 
-  public String read(String filename) throws IOException {
+
+  /**
+   * Returns the source in the given filename.
+   * @param filename the source to load.
+   * @return the text in the source file.
+   * @throws IOException when uable to load the associated resource.
+   */
+  public String read(final String filename) throws IOException {
     return Resources.toString(this.locator.getFile(filename), Charsets.UTF_8);
   }
 
-  public Object run(String functionName, Object... values) {
+
+  /**
+   * Run the given function by name in the current context.
+   * @param functionName - the name of the function to run.
+   * @param values - the arguments passed to the function.
+   * @return the result of the function call.
+   */
+  public Object run(final String functionName, final Object... values) {
     // Create a local copy of the bindings so we can multi-thread.
     Context context = enterContext();
 
@@ -114,11 +168,12 @@ public class Script {
       List<String> names = Lists.newArrayList();
       for (int i = 0; i < values.length; i++) {
         final Object value = values[i];
-        if (value instanceof String || value instanceof Number || value instanceof Boolean
-            || value instanceof Scriptable) {
+        if (value instanceof String || value instanceof Number
+            || value instanceof Boolean || value instanceof Scriptable) {
           ScriptableObject.putProperty(localScope, "__p" + i, values[i]);
         } else {
-          ScriptableObject.putProperty(localScope, "__p" + i, Context.javaToJS(values[i], localScope));
+          ScriptableObject.putProperty(localScope, "__p" + i,
+              Context.javaToJS(values[i], localScope));
         }
         names.add("__p" + i);
       }
@@ -129,11 +184,15 @@ public class Script {
     }
   }
 
-
-  // Unwrap the object return from the js runtime.
-  //
-  // Cribbed from com.sun.phobos.script.javascript.ExternalScriptable.java
-  // BSD licensed
+  /**
+   * Unwrap the object return from the js runtime.
+   *
+   * Cribbed from com.sun.phobos.script.javascript.ExternalScriptable.java
+   * BSD licensed
+   *
+   * @param jsObj the object to unwrap.
+   * @return the unwrapped object.
+   */
   private Object unwrap(final Object jsObj) {
     if (jsObj instanceof Wrapper) {
       Wrapper njb = (Wrapper) jsObj;
@@ -143,7 +202,8 @@ public class Script {
       }
 
       Object obj = njb.unwrap();
-      if (obj instanceof Number || obj instanceof String || obj instanceof Boolean || obj instanceof Character) {
+      if (obj instanceof Number || obj instanceof String
+          || obj instanceof Boolean || obj instanceof Character) {
         // special type wrapped -- we just leave it as is.
         return njb;
       } else {
