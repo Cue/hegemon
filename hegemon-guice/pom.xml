@@ -11,19 +11,23 @@
   </parent>
 
   <groupId>com.cueup.hegemon</groupId>
-  <artifactId>hegemon-core</artifactId>
+  <artifactId>hegemon-guice</artifactId>
   <packaging>jar</packaging>
+
+  <properties>
+    <guice.version>3.0</guice.version>
+  </properties>
 
   <dependencies>
     <dependency>
-      <groupId>org.mozilla</groupId>
-      <artifactId>rhino</artifactId>
-      <version>1.7R3</version>
+      <groupId>com.cueup.hegemon</groupId>
+      <artifactId>hegemon-core</artifactId>
+      <version>0.0.1</version>
     </dependency>
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>13.0-rc1</version>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>3.0</version>
     </dependency>
   </dependencies>
 </project>

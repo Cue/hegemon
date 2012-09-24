@@ -12,6 +12,7 @@
 
   <modules>
     <module>hegemon-core</module>
+    <module>hegemon-guice</module>
   </modules>
 
   <properties>
