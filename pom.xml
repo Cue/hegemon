@@ -13,6 +13,7 @@
   <modules>
     <module>hegemon-core</module>
     <module>hegemon-guice</module>
+    <module>hegemon-testing</module>
   </modules>
 
   <properties>
