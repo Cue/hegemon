@@ -4,6 +4,9 @@
 
 package com.cueup.hegemon.testing;
 
+import com.cueup.hegemon.LoadError;
+import com.cueup.hegemon.LoadPath;
+import com.cueup.hegemon.ResourceScriptLocator;
 import com.cueup.hegemon.Script;
 import com.cueup.hegemon.ScriptLocator;
 import com.google.common.collect.ImmutableList;
@@ -77,6 +80,8 @@ public class HegemonRunner extends ParentRunner<String> {
       try {
         this.script.run("setTestInstance", this.instance);
         this.script.run(this.name, this.arguments);
+      } catch (Throwable t) {
+        throw new RuntimeException(t);
       } finally {
         Script.exitContext();
       }
@@ -84,8 +89,6 @@ public class HegemonRunner extends ParentRunner<String> {
 
   }
 
-
-  private static final ScriptLocator LOCATOR = new TestScriptLocator();
 
   private final Script testScript;
 
@@ -104,6 +107,9 @@ public class HegemonRunner extends ParentRunner<String> {
     this(klass, null);
   }
 
+  public HegemonRunner(Class<?> klass, String method) throws InitializationError {
+    this(klass, method, new LoadPath(new ResourceScriptLocator(HegemonRunner.class, "javascript")));
+  }
 
   /**
    * Creates a HegemonRunner to run the given method of the class.
@@ -111,7 +117,7 @@ public class HegemonRunner extends ParentRunner<String> {
    * @param method the method to run.
    * @throws InitializationError if the test class is malformed.
    */
-  public HegemonRunner(Class<?> klass, String method) throws InitializationError {
+  public HegemonRunner(Class<?> klass, String method, LoadPath loadPath) throws InitializationError {
     super(klass);
 
     this.method = method;
@@ -129,8 +135,8 @@ public class HegemonRunner extends ParentRunner<String> {
       throw new InitializationError("Hegemon tests must be annotated with @Script");
     }
     try {
-      this.testScript = new Script("", LOCATOR, "core", "unittest", scriptData.filename());
-    } catch (IOException e) {
+      this.testScript = new Script("", loadPath, "hegemon/core", "hegemon/unittest", scriptData.filename());
+    } catch (LoadError e) {
       throw new InitializationError(e);
     }
   }

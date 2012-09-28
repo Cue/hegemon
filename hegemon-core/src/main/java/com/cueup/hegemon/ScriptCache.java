@@ -35,7 +35,7 @@ public class ScriptCache {
     this.cache.invalidateAll();
   }
 
-  public Script get(String script, boolean reload) throws IOException, ScriptException {
+  public Script get(String script, boolean reload) throws LoadError, ScriptException {
     try {
       if (reload) {
         this.cache.invalidate(script);
@@ -44,8 +44,8 @@ public class ScriptCache {
     } catch (ExecutionException e) {
       if (e.getCause() instanceof ScriptException) {
         throw (ScriptException) e.getCause();
-      } else if (e.getCause() instanceof IOException) {
-        throw (IOException) e.getCause();
+      } else if (e.getCause() instanceof LoadError) {
+        throw (LoadError) e.getCause();
       } else if (e.getCause() instanceof RuntimeException) {
         throw (RuntimeException) e.getCause();
       } else {
