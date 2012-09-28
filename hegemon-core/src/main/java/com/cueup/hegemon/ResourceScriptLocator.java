@@ -16,11 +16,11 @@ public class ResourceScriptLocator extends  ScriptLocator {
   private final File rootDir;
   private final Class klass;
 
-  protected ResourceScriptLocator(Class klass) {
+  public ResourceScriptLocator(Class klass) {
     this(klass, "");
   }
 
-  protected ResourceScriptLocator(Class klass, String rootDir) {
+  public ResourceScriptLocator(Class klass, String rootDir) {
     this.klass = klass;
     this.rootDir = new File(rootDir);
   }
