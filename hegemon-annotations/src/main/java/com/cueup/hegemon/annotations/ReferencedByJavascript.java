@@ -1,4 +1,4 @@
-package com.cueup.hegemon;
+package com.cueup.hegemon.annotations;
 /*
  * Copyright 2012 Greplin, Inc. All Rights Reserved.
  */

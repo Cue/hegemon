@@ -4,13 +4,12 @@
 
 package com.cueup.hegemon;
 
-import com.google.common.base.Charsets;
+import com.cueup.hegemon.annotations.ReferencedByJavascript;
 import com.google.common.base.Joiner;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.io.Resources;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mozilla.javascript.Context;
@@ -19,8 +18,6 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Wrapper;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
