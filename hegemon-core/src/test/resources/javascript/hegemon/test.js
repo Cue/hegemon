@@ -4,7 +4,7 @@
 
 // A test for Script loading.
 
-load('testImport');
+load('hegemon/testImport');
 
 function testMe() {
   return 'here';

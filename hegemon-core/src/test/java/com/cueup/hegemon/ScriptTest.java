@@ -16,20 +16,20 @@ import java.util.Random;
  */
 public class ScriptTest {
 
-  private static final ScriptLocator LOCATOR = new ResourceScriptLocator("hegemon");
+  private static final LoadPath LOAD_PATH = new LoadPath(new ResourceScriptLocator(ScriptTest.class, "/javascript"));
 
 
   @Test
-  public void testBasics() throws ScriptException, IOException {
-    Script s = new Script("function add(a, b) { return a + b }", LOCATOR);
+  public void testBasics() throws ScriptException, LoadError {
+    Script s = new Script("function add(a, b) { return a + b }", LOAD_PATH);
     Assert.assertEquals(106.0, s.run("add", 6, 100));
     Assert.assertEquals("ab", s.run("add", "a", "b"));
   }
 
 
   @Test
-  public void testConcurrent() throws ScriptException, InterruptedException, IOException {
-    final Script s = new Script("function add(a, b) { return a + b }", LOCATOR);
+  public void testConcurrent() throws ScriptException, InterruptedException, LoadError {
+    final Script s = new Script("function add(a, b) { return a + b }", LOAD_PATH);
     final Random random = new Random();
     TestUtils.runConcurrent(10, new Runnable() {
       @Override
@@ -43,15 +43,15 @@ public class ScriptTest {
 
 
   @Test
-  public void testGlobals() throws ScriptException, IOException {
-    final Script s = new Script("", LOCATOR, "core", "test");
+  public void testGlobals() throws ScriptException, LoadError {
+    final Script s = new Script("", LOAD_PATH, "hegemon/core", "hegemon/test");
     Assert.assertEquals("here", s.run("testMe"));
   }
 
 
   @Test
-  public void testImports() throws ScriptException, IOException {
-    final Script s = new Script("", LOCATOR, "core", "test");
+  public void testImports() throws ScriptException, LoadError {
+    final Script s = new Script("", LOAD_PATH, "hegemon/core", "hegemon/test");
     Assert.assertEquals(100, s.run("testImports"));
   }
 

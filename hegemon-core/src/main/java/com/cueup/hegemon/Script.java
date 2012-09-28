@@ -37,7 +37,7 @@ public class Script {
   /**
    * Allows for user defined script location.
    */
-  private final ScriptLocator locator;
+  private final LoadPath loadPath;
 
   /**
    * The 'global' scope for this script.
@@ -86,13 +86,13 @@ public class Script {
    * Load a new script context from a source, found with a locator,
    * loading globalFiles.
    * @param source - The source code to be run.
-   * @param locator - How to find any files loaded.
+   * @param loadPath - How to find any files loaded.
    * @param globalFiles - Files to load to run this source.
-   * @throws IOException when files don't load properly.
+   * @throws LoadError when files don't load properly.
    */
-  public Script(final String source, final ScriptLocator locator,
-                final String... globalFiles) throws IOException {
-    this.locator = locator;
+  public Script(final String source, final LoadPath loadPath,
+                final String... globalFiles) throws LoadError {
+    this.loadPath = loadPath;
     this.loaded = Sets.newHashSet();
 
     Context context = enterContext();
@@ -115,24 +115,21 @@ public class Script {
 
 
   /**
-   * Load the script located with the Script's locator with the given filename.
-   * @param filename - the file to load.
-   * @throws IOException when unable to load the associated resource.
+   * Load the script located with the Script's loadPath with the given filename.
+   * @param scriptName - the name of the script to load (sans .js).
+   * @throws LoadError when unable to load the associated resource.
    */
-  public void load(final String filename) throws IOException {
-    if (this.loaded.contains(filename)) {
+  public void load(final String scriptName) throws LoadError {
+    if (this.loaded.contains(scriptName)) {
       return;
     }
-    this.loaded.add(filename);
+    this.loaded.add(scriptName);
 
+    String filename = scriptName + ".js";
     Context context = enterContext();
     try {
-      URL resource = this.locator.getScript(filename);
-      if (resource == null) {
-        throw new RuntimeException("Can't locate resource for " + filename);
-      }
-      String code = Resources.toString(resource, Charsets.UTF_8);
-      context.evaluateString(this.sharedScope, code, filename + ".js", 1, null);
+      String code = this.loadPath.load(filename);
+      context.evaluateString(this.sharedScope, code, filename, 1, null);
     } finally {
       exitContext();
     }
@@ -143,10 +140,10 @@ public class Script {
    * Returns the source in the given filename.
    * @param filename the source to load.
    * @return the text in the source file.
-   * @throws IOException when uable to load the associated resource.
+   * @throws LoadError when unable to load the associated resource.
    */
-  public String read(final String filename) throws IOException {
-    return Resources.toString(this.locator.getFile(filename), Charsets.UTF_8);
+  public String read(final String filename) throws LoadError {
+    return this.loadPath.load(filename);
   }
 
 

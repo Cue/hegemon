@@ -21,13 +21,12 @@ public class ScriptCache {
 
   private final LoadingCache<String, Script> cache;
 
-  public ScriptCache(final ScriptLocator locator) {
+  public ScriptCache(final LoadPath loadPath) {
     this.cache = CacheBuilder.newBuilder().build(new CacheLoader<String, Script>() {
       @Override
       public Script load(String key) throws Exception {
         // TODO(robbyw): Dependencies should be managed elsewhere.
-        return new Script(
-            Resources.toString(locator.getScript(key), Charsets.UTF_8), locator, "core");
+        return new Script(loadPath.load(key), loadPath, "hegemon/core");
       }
     });
   }
