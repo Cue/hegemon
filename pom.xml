@@ -15,6 +15,7 @@
     <module>hegemon-guice</module>
     <module>hegemon-testing</module>
     <module>hegemon-annotations</module>
+    <module>hegemon-testserver</module>
   </modules>
 
   <properties>
