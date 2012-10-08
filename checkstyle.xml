@@ -221,4 +221,9 @@
     <property name="checkFormat" value="$1"/>
     <property name="influenceFormat" value="0"/>
   </module>
+  <module name="SuppressWithNearbyCommentFilter">
+    <property name="commentFormat" value="lint\: disable=([\w\|]+) next (\d+) lines"/>
+    <property name="checkFormat" value="$1"/>
+    <property name="influenceFormat" value="$2"/>
+  </module>
 </module>
