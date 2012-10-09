@@ -1,5 +1,17 @@
 /*
- * Copyright 2012 Greplin, Inc. All Rights Reserved.
+ * Copyright 2012 the hegemon authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.cueup.hegemon.testing;
@@ -8,7 +20,6 @@ import com.cueup.hegemon.LoadError;
 import com.cueup.hegemon.LoadPath;
 import com.cueup.hegemon.ResourceScriptLocator;
 import com.cueup.hegemon.Script;
-import com.cueup.hegemon.ScriptLocator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.junit.After;
@@ -23,7 +34,6 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
-import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -45,6 +55,8 @@ public class HegemonRunner extends ParentRunner<String> {
   @Target(ElementType.TYPE)
   @Inherited
   public @interface TestScript {
+    // This compensates for a bug in checkstyle: http://jira.codehaus.org/browse/MCHECKSTYLE-161
+    // lint: disable=JavadocMethodCheck next 3 lines
     /**
      * @return the script to be run
      */
@@ -80,7 +92,7 @@ public class HegemonRunner extends ParentRunner<String> {
       try {
         this.script.run("setTestInstance", this.instance);
         this.script.run(this.name, this.arguments);
-      } catch (Throwable t) {
+      } catch (Throwable t) { //lint: disable=IllegalCatchCheck
         throw new RuntimeException(t);
       } finally {
         Script.exitContext();
@@ -107,6 +119,13 @@ public class HegemonRunner extends ParentRunner<String> {
     this(klass, null);
   }
 
+  /**
+   * Creates a HegemonRunner to run the given method in a class.
+   * It uses the javascript/ toplevel resource directory as a load path.
+   * @param klass the class to run tests for.
+   * @param method the test method to run.
+   * @throws InitializationError if the test class is malformed.
+   */
   public HegemonRunner(Class<?> klass, String method) throws InitializationError {
     this(klass, method, new LoadPath(new ResourceScriptLocator(HegemonRunner.class, "javascript")));
   }
@@ -115,6 +134,7 @@ public class HegemonRunner extends ParentRunner<String> {
    * Creates a HegemonRunner to run the given method of the class.
    * @param klass the class to run tests for.
    * @param method the method to run.
+   * @param loadPath where to load javascript files from.
    * @throws InitializationError if the test class is malformed.
    */
   public HegemonRunner(Class<?> klass, String method, LoadPath loadPath) throws InitializationError {

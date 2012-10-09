@@ -13,4 +13,8 @@
   <groupId>com.cueup.hegemon</groupId>
   <artifactId>hegemon-annotations</artifactId>
   <packaging>jar</packaging>
+
+  <properties>
+    <main.basedir>${project.parent.basedir}</main.basedir>
+  </properties>
 </project>

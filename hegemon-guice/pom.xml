@@ -16,6 +16,7 @@
 
   <properties>
     <guice.version>3.0</guice.version>
+    <main.basedir>${project.parent.basedir}</main.basedir>
   </properties>
 
   <dependencies>
