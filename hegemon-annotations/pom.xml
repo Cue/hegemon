@@ -5,12 +5,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.cueup.hegemon</groupId>
+    <groupId>cue.hegemon</groupId>
     <artifactId>hegemon-parent</artifactId>
     <version>0.0.1</version>
   </parent>
 
-  <groupId>com.cueup.hegemon</groupId>
+  <groupId>cue.hegemon</groupId>
   <artifactId>hegemon-annotations</artifactId>
   <packaging>jar</packaging>
 

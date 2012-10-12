@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-// Make cue accessible a la java and com
-cue = Packages.cue;
+package cue.hegemon;
 
-function load(name) {
-  hegemon.load(name);
-}
+/**
+ * A value identifier. Used to give names to static values.
+ */
+public class ValueName {
+  private final String namespace;
+  private final String name;
 
-// Returns the contents of a file as a string
-function slurp(name) {
-  return hegemon.read(name);
+
+  /**
+   * Simple constructor.
+   * @param namespace to define the name in.
+   * @param name of the value.
+   */
+  public ValueName(String namespace, String name) {
+    this.namespace = namespace;
+    this.name = name;
+  }
 }

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-// Make cue accessible a la java and com
-cue = Packages.cue;
+package cue.hegemon.annotations;
 
-function load(name) {
-  hegemon.load(name);
-}
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 
-// Returns the contents of a file as a string
-function slurp(name) {
-  return hegemon.read(name);
+/**
+ * Annotates methods used only by JavaScript.
+ */
+@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.FIELD, ElementType.CONSTRUCTOR })
+public @interface ReferencedByJavascript {
 }
