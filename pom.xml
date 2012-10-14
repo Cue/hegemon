@@ -10,6 +10,29 @@
   <version>0.0.1</version>
   <packaging>pom</packaging>
 
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>kevinclark</id>
+      <name>Kevin Clark</name>
+      <email>kevin@cueup.com</email>
+      <timezone>-8</timezone>
+    </developer>
+    <developer>
+      <id>robbywalker</id>
+      <name>Robby Walker</name>
+      <email>robbyw@cueup.com</email>
+      <timezone>-8</timezone>
+    </developer>
+  </developers>
+
   <modules>
     <module>hegemon-core</module>
     <module>hegemon-guice</module>
