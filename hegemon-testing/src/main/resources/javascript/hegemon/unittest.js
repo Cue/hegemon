@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-load('common');
+load('hegemon/core');
 
 Assert = org.junit.Assert;
 
