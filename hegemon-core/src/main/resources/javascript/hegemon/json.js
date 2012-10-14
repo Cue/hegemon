@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-// Make cue accessible a la java and com
-cue = Packages.cue;
-
-function load(name) {
-  hegemon.load(name);
+function toJson(object) {
+  return new org.codehaus.jackson.map.ObjectMapper().writeValueAsString(object);
 }
 
-// Returns the contents of a file as a string
-function slurp(name) {
-  return hegemon.read(name);
-}
-
-load('hegemon/java');
-load('hegemon/json');
 

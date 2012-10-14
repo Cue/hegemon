@@ -16,6 +16,7 @@
 
   <properties>
     <main.basedir>${project.parent.basedir}</main.basedir>
+    <jackson.version>1.9.8</jackson.version>
   </properties>
 
   <dependencies>
@@ -33,6 +34,11 @@
       <groupId>cue.hegemon</groupId>
       <artifactId>hegemon-annotations</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-jaxrs</artifactId>
+      <version>${jackson.version}</version>
     </dependency>
   </dependencies>
 </project>
