@@ -5,12 +5,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>cue.hegemon</groupId>
+    <groupId>com.cueup.hegemon</groupId>
     <artifactId>hegemon-parent</artifactId>
     <version>0.0.1</version>
   </parent>
 
-  <groupId>cue.hegemon</groupId>
+  <groupId>com.cueup.hegemon</groupId>
   <artifactId>hegemon-testing</artifactId>
   <packaging>jar</packaging>
 
@@ -20,7 +20,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>cue.hegemon</groupId>
+      <groupId>com.cueup.hegemon</groupId>
       <artifactId>hegemon-core</artifactId>
       <version>${project.version}</version>
     </dependency>

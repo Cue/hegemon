@@ -14,15 +14,23 @@
  * limitations under the License.
  */
 
-function load(name) {
-  hegemon.load(name);
+package com.cueup.hegemon;
+
+/**
+ * A value identifier. Used to give names to static values.
+ */
+public class ValueName {
+  private final String namespace;
+  private final String name;
+
+
+  /**
+   * Simple constructor.
+   * @param namespace to define the name in.
+   * @param name of the value.
+   */
+  public ValueName(String namespace, String name) {
+    this.namespace = namespace;
+    this.name = name;
+  }
 }
-
-// Returns the contents of a file as a string
-function slurp(name) {
-  return hegemon.read(name);
-}
-
-load('hegemon/java');
-load('hegemon/json');
-

@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-function load(name) {
-  hegemon.load(name);
+package com.cueup.hegemon;
+
+/**
+ * Interface for a class that can locate scripts.
+ */
+public abstract class ScriptLocator {
+  /**
+   * Returns the contents of the file with the given name.
+   * @param name the file to load.
+   * @return the String contents.
+   * @throws LoadError if the file can't be found.
+   */
+  public abstract String getFile(String name) throws LoadError;
 }
-
-// Returns the contents of a file as a string
-function slurp(name) {
-  return hegemon.read(name);
-}
-
-load('hegemon/java');
-load('hegemon/json');
-

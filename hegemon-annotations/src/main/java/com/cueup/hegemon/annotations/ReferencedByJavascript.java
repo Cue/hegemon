@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-function load(name) {
-  hegemon.load(name);
+package com.cueup.hegemon.annotations;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
+
+/**
+ * Annotates methods used only by JavaScript.
+ */
+@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.FIELD, ElementType.CONSTRUCTOR })
+public @interface ReferencedByJavascript {
 }
-
-// Returns the contents of a file as a string
-function slurp(name) {
-  return hegemon.read(name);
-}
-
-load('hegemon/java');
-load('hegemon/json');
-
