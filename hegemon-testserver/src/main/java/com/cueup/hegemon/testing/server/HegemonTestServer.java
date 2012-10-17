@@ -16,6 +16,7 @@
 
 package com.cueup.hegemon.testing.server;
 
+import com.cueup.hegemon.LoadPath;
 import com.cueup.hegemon.testing.HegemonRunner;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -32,6 +33,20 @@ import java.io.IOException;
  */
 public class HegemonTestServer extends AbstractHandler {
 
+  private final LoadPath loadPath;
+
+
+  /**
+   * Creates a test server loading sources with 'loadPath'.
+   */
+  public HegemonTestServer(LoadPath loadPath) {
+    this.loadPath = loadPath;
+  }
+
+
+  /**
+   *  The request handler translates an HTTP request to a test class and method to run.
+   */
   @Override
   public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
@@ -63,7 +78,8 @@ public class HegemonTestServer extends AbstractHandler {
 
     try {
       Class c = Class.forName(target.substring(1), true, getClass().getClassLoader());
-      HegemonRunner runner = new HegemonRunner(c, baseRequest.getQueryString());
+      HegemonRunner runner =
+          new HegemonRunner(c, baseRequest.getQueryString(), this.loadPath);
       RunNotifier notifier = new RunNotifier();
       notifier.addListener(new ResponseListener(response));
 

@@ -29,20 +29,41 @@ import java.util.List;
 public class LoadPath {
   private final List<ScriptLocator> paths;
 
+  private static final ScriptLocator SYSTEM_PATH = new ResourceScriptLocator(LoadPath.class, "/javascript");
+
 
   /**
-   * Creates a new LoadPath that searches.
-   * @param locators the ScriptLocators to be searched (sequentially) for a given file.
+   * The default path contains only a resource loader for the '/javascript' directory in resources.
    */
-  public LoadPath(ScriptLocator ... locators) {
-    this.paths = Lists.newLinkedList();
-    this.paths.add(new ResourceScriptLocator(getClass(), "/javascript"));
-
-    if (locators != null && locators.length > 0) {
-      Collections.addAll(this.paths, locators);
-    }
+  public static LoadPath defaultPath() {
+    return new LoadPath(Collections.singletonList(SYSTEM_PATH));
   }
 
+
+  // TODO(kevinclark): probably worth having a helper for appending to the default path, but no direct need yet.
+
+  /**
+   * A custom path allows the user to inject locators *before and after* the system path. That means that users
+   * can potentially override hegemon standard libraries. It's useful for hegemon-testing's HegemonTestRunner
+   * because it needs to reload actual *source* files instead of resources moved to the classes directory.
+   */
+  public static LoadPath customPath(List<ScriptLocator> beforeSystem, List<ScriptLocator> afterSystem) {
+    List<ScriptLocator> paths = Lists.newArrayList();
+    paths.addAll(beforeSystem);
+    paths.add(SYSTEM_PATH);
+    paths.addAll(afterSystem);
+
+    return new LoadPath(paths);
+  }
+
+  /**
+   * Creates a new LoadPath that searches sequentially for a given file. Passed locators are appended to the default
+   * load path, which searches resource directories at '/javascript'.
+   * @param locators the ScriptLocators.
+   */
+  private LoadPath(List<ScriptLocator> locators) {
+    this.paths = locators;
+  }
 
   /**
    * Returns the contents of a file found in this LoadPath.

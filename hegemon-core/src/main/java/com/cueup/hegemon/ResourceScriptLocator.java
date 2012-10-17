@@ -54,6 +54,22 @@ public class ResourceScriptLocator extends ScriptLocator {
 
 
   /**
+   * Returns the root directory this locator is using relative to resources.
+   */
+  public File getRootDir() {
+    return this.rootDir;
+  }
+
+
+  /**
+   * Returns the class we're loading resources from.
+   */
+  protected Class getKlass() {
+    return this.klass;
+  }
+
+
+  /**
    * Returns the string contents of the given file name, if found.
    * @param name the file name to read.
    * @return the String contents of the file.
@@ -62,7 +78,6 @@ public class ResourceScriptLocator extends ScriptLocator {
   @Override
   public String getFile(String name) throws LoadError {
     try {
-
       String path = new File("/", new File(this.rootDir, name).getPath()).getPath();
       URL resource = this.klass.getResource(path);
       if (resource == null) {

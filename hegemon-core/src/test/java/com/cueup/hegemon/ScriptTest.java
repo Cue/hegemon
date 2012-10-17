@@ -27,7 +27,7 @@ import java.util.Random;
  */
 public class ScriptTest {
 
-  private static final LoadPath LOAD_PATH = new LoadPath(new ResourceScriptLocator(ScriptTest.class, "/javascript"));
+  private static final LoadPath LOAD_PATH = LoadPath.defaultPath();
 
 
   @Test

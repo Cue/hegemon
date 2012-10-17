@@ -18,7 +18,6 @@ package com.cueup.hegemon.testing;
 
 import com.cueup.hegemon.LoadError;
 import com.cueup.hegemon.LoadPath;
-import com.cueup.hegemon.ResourceScriptLocator;
 import com.cueup.hegemon.Script;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -127,7 +126,7 @@ public class HegemonRunner extends ParentRunner<String> {
    * @throws InitializationError if the test class is malformed.
    */
   public HegemonRunner(Class<?> klass, String method) throws InitializationError {
-    this(klass, method, new LoadPath(new ResourceScriptLocator(HegemonRunner.class, "javascript")));
+    this(klass, method, LoadPath.defaultPath());
   }
 
   /**
