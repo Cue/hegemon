@@ -1,8 +1,11 @@
 # Hegemon
 
-hegemon is a set of tools and libraries for running the Rhino javascript implementation on the JVM.
+hegemon is a set of tools and libraries for running the latest [Rhino](https://developer.mozilla.org/en-US/docs/Rhino)
+javascript implementation on the JVM.
 
-For examples of what it can do and how to use it, see the [example application][https://github.com/Cue/hegemon-example].
+For examples of what it can do and how to use it, see the [example application](https://github.com/Cue/hegemon-example).
+
+hegemon currently embeds Rhino 1.7R4, supporting JavaScript 1.8.
 
 Add it to your project with maven:
 
