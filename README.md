@@ -39,7 +39,17 @@ The default load path loads files with a .js extension from the
 `resources/javascript` directory. Custom load schemes can be implemented
 with the `ScriptLocator` interface.
 
-// TODO(kevinclark): Link to example!
+In context examples:
+
+* An [http endpoint][endpoint] routing to pre-packaged [scripts][scripts]
+* An [endpoint] [customscript] evaluating post data.
+
+
+[endpoint]: https://github.com/Cue/hegemon-example/blob/master/src/main/java/com/cueup/hegemon/example/ScriptResource.java
+[customscript]: https://github.com/Cue/hegemon-example/blob/master/src/main/java/com/cueup/hegemon/example/CustomScriptResource.java
+[scripts]: https://github.com/Cue/hegemon-example/tree/master/src/main/resources/javascript/script
+[
+
 
 Add with maven:
 
@@ -74,7 +84,12 @@ public class MyJsTest {
 Now any functions prefixed with 'test' in 'myJsTest.js' will be run
 along with all other JUnit tests.
 
-// TODO(kevinclark): Link to example!
+
+In context examples:
+
+* A [binding file](https://github.com/Cue/hegemon-example/blob/master/src/test/java/com/cueup/hegemon/example/ExampleTest.java)
+* [Tests in JavaScript](https://github.com/Cue/hegemon-example/blob/master/src/test/resources/javascript/exampleTest.js)
+
 
 Add with maven:
 
@@ -99,7 +114,7 @@ it where your source files are, and it'll run tests and reload code via
 an http server. You can also run a single test independent from the rest
 of the file.
 
-// TODO(kevinclark): Link
+See [the example app's implementation](https://github.com/Cue/hegemon-example/blob/master/src/test/java/com/cueup/hegemon/example/ExampleJsTestServer.java) for more.
 
 Add with maven:
 
