@@ -30,9 +30,9 @@ Reloading files can be expensive, so hegemon-core ships with a `ScriptCache`.
 
 ```java
 ScriptCache cache = new ScriptCache(LoadPath.defaultPath());
-Script script = cache.get('myScript');
-script.run('foo');
-// with optional reloading: cache.get('myScript', true);
+Script script = cache.get("myScript");
+script.run("foo");
+// with optional reloading: cache.get("myScript", true);
 ```
 
 The default load path loads files with a .js extension from the
