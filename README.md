@@ -48,7 +48,6 @@ In context examples:
 [endpoint]: https://github.com/Cue/hegemon-example/blob/master/src/main/java/com/cueup/hegemon/example/ScriptResource.java
 [customscript]: https://github.com/Cue/hegemon-example/blob/master/src/main/java/com/cueup/hegemon/example/CustomScriptResource.java
 [scripts]: https://github.com/Cue/hegemon-example/tree/master/src/main/resources/javascript/script
-[
 
 
 Add with maven:
