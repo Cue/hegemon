@@ -19,11 +19,11 @@ script.run("foo"); // returns 7
 hegemon also allows you to load files as needed, in either language:
 
 ```java
-Script script = new Script("function foo() { return definedInUtil(); }", LoadPath.defaultPath(), "util");
+new Script("function foo() { return definedInUtil(); }", LoadPath.defaultPath(), "util");
 ```
 
 ```java
-Script script = new Script("load('util'); function foo() { return definedInUtil(); }", LoadPath.defaultPath());
+new Script("load('util'); function foo() { return definedInUtil(); }", LoadPath.defaultPath());
 ```
 
 Reloading files can be expensive, so hegemon-core ships with a `ScriptCache`.
