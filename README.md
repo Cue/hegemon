@@ -42,7 +42,7 @@ The default load path loads files with a .js extension from the
 `resources/javascript` directory. Custom load schemes can be implemented
 with the `ScriptLocator` interface.
 
-Usage at Cue has largely been via HTTP. For example, the sample
+These simple examples show JavaScript evalution out of context - usage at Cue has largely been via HTTP. For example, the sample
 appliction includes a [jersey resource][endpoint] that maps URLs to pre-packaged [javascript files][scripts].
 This allows requests to `/script/example` to run code in `resources/javascript/script/example.js`.
 [Another resource][customscript] evaluates code that's POST'd to it. This pattern is used primarily to provide a debugging entrypoint.
