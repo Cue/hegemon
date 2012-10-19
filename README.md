@@ -47,7 +47,7 @@ appliction includes a [jersey resource][endpoint] that maps URLs to pre-packaged
 This allows requests to `/script/example` to run code in `resources/javascript/script/example.js`.
 [Another resource][customscript] evaluates code that's POST'd to it. This pattern is used primarily to provide a debugging entrypoint.
 You can build an interactive console on top of it or bundle code in development and run in against production data
-without changing what consumers of the service experience - assuming your eval'd code doesn't do anything nefarios.
+without changing what consumers of the service experience - assuming your eval'd code doesn't do anything malicious.
 Take care to understand the implications of an eval endpoint if you follow this pattern.
 
 
