@@ -16,11 +16,14 @@ Script script = new Script("function foo() { return 3 + 4; }", LoadPath.defaultP
 script.run("foo"); // returns 7
 ```
 
-hegemon also allows you to load files as needed, in either language:
+hegemon also allows you to load JavaScript files both from Java, via
+varargs in the `Script` constructor:
 
 ```java
 new Script("function foo() { return definedInUtil(); }", LoadPath.defaultPath(), "util");
 ```
+
+And also from inside your JavaScript itself with the hegemon provided `load` function:
 
 ```java
 new Script("load('util'); function foo() { return definedInUtil(); }", LoadPath.defaultPath());
