@@ -9,7 +9,7 @@ For examples in the context of a java project, see the [example application](htt
 
 ### hegemon-core
 
-The essentials of hegemon allow you to run JavaScript functions without boilerplate.
+The essentials of hegemon allow you to run JavaScript functions from Java without boilerplate.
 
 ```java
 Script script = new Script("function foo() { return 3 + 4; }", LoadPath.defaultPath());
