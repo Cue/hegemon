@@ -90,11 +90,9 @@ public class MyJsTest {
 Now any functions prefixed with 'test' in 'myJsTest.js' will be run
 along with all other JUnit tests.
 
-
-In context examples:
-
-* A [binding file](https://github.com/Cue/hegemon-example/blob/master/src/test/java/com/cueup/hegemon/example/ExampleTest.java)
-* [Tests in JavaScript](https://github.com/Cue/hegemon-example/blob/master/src/test/resources/javascript/exampleTest.js)
+For example, [the tests](https://github.com/Cue/hegemon-example/blob/master/src/test/resources/javascript/exampleTest.js) for
+[this file](https://github.com/Cue/hegemon-example/blob/master/src/main/resources/javascript/script/example.js) are bound to a JUnit test
+case with with a class like [this](https://github.com/Cue/hegemon-example/blob/master/src/test/java/com/cueup/hegemon/example/ExampleTest.java).
 
 
 Add with maven:
