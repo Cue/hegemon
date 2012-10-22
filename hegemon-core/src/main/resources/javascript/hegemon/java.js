@@ -62,5 +62,20 @@ function getKeys(obj) {
 }
 
 
+function forEach(obj, fn) {
+  if (obj) {
+    if ('length' in obj) {
+      for (var i = 0; i < obj.length; i++) {
+        fn(obj[i]);
+      }
+    } else {
+      var it = obj.iterator();
+      while (it.hasNext()) {
+        fn(it.next());
+      }
+    }
+
+  }
+}
 
 
