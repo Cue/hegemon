@@ -23,10 +23,11 @@ varargs in the `Script` constructor:
 new Script("function foo() { return definedInUtil(); }", LoadPath.defaultPath(), "util");
 ```
 
-And also from inside your JavaScript itself with the hegemon provided `load` function:
+And also from inside your JavaScript itself with the 'hegemon/core' provided `load` function:
 
 ```java
-new Script("load('util'); function foo() { return definedInUtil(); }", LoadPath.defaultPath());
+new Script("load('util'); function foo() { return definedInUtil(); }",
+  LoadPath.defaultPath(), 'hegemon/core');
 ```
 
 Reloading files can be expensive, so hegemon-core ships with a `ScriptCache`.
