@@ -23,6 +23,5 @@ function slurp(name) {
   return hegemon.read(name);
 }
 
-load('hegemon/java');
 load('hegemon/json');
 
