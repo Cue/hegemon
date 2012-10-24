@@ -1,0 +1,7 @@
+{
+  "deps": [
+    "hegemon",
+    "hegemon/hegemon-core",
+    "hegemon/hegemon-testing"
+  ]
+}
