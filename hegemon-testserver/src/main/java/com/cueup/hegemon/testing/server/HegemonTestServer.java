@@ -34,6 +34,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -74,10 +76,31 @@ public class HegemonTestServer extends AbstractHandler {
           TEST_CLASS_SHORT_NAMES.put(c.getSimpleName(), className);
           JS_NAME_TO_CLASS_NAME.put(c.getAnnotation(HegemonRunner.TestScript.class).filename(), className);
         } else {
-          System.out.println("No annotation: " + className);
+          System.err.println("No annotation: " + className);
         }
       } catch (ClassNotFoundException e) {
-        System.out.println("Could not load: " + className);
+        System.err.println("Could not load: " + className);
+      }
+    }
+
+    private static void addClassesFromJar(File jarFile) throws IOException {
+      JarInputStream is = new JarInputStream(new FileInputStream(jarFile));
+      JarEntry entry;
+      while ((entry = is.getNextJarEntry()) != null) {
+        String name = entry.getName();
+        if (name.endsWith("Test.class")) {
+          addClass(FilenameUtils.removeExtension(name).replaceAll("/", "."));
+        }
+      }
+    }
+
+    private static void addClassesFromPath(File root) throws IOException {
+      Collection files = FileUtils.listFiles(root, new String[]{"class"}, true);
+      for (Object file : files) {
+        String name = root.toURI().relativize(((File) file).toURI()).getPath();
+        if (name.endsWith("Test.class")) {
+          addClass(name.substring(0, name.length() - 6).replaceAll("/", "."));
+        }
       }
     }
 
@@ -89,24 +112,26 @@ public class HegemonTestServer extends AbstractHandler {
         String classPath = System.getProperty("java.class.path");
         String separator = System.getProperty("path.separator");
         for (String classpathEntry : classPath.split(separator)) {
+          System.err.println("Adding class path: " + classpathEntry);
           if (classpathEntry.endsWith(".jar")) {
-            File jar = new File(classpathEntry);
-            JarInputStream is = new JarInputStream(new FileInputStream(jar));
-            JarEntry entry;
-            while ((entry = is.getNextJarEntry()) != null) {
-              String name = entry.getName();
-              if (name.endsWith("Test.class")) {
-                addClass(FilenameUtils.removeExtension(name).replaceAll("/", "."));
-              }
-            }
+            addClassesFromJar(new File(classpathEntry));
           } else {
-            File root = new File(classpathEntry);
-            Collection files = FileUtils.listFiles(root, new String[]{"class"}, true);
-            for (Object file : files) {
-              String name = root.toURI().relativize(((File) file).toURI()).getPath();
-              if (name.endsWith("Test.class")) {
-                addClass(name.substring(0, name.length() - 6).replaceAll("/", "."));
+            addClassesFromPath(new File(classpathEntry));
+          }
+        }
+
+        ClassLoader loader = AllClassesList.class.getClassLoader();
+        if (loader instanceof URLClassLoader) {
+          for (URL base : ((URLClassLoader) loader).getURLs()) {
+            if ("file".equals(base.getProtocol())) {
+              System.err.println("Adding class path: " + base);
+              if (base.getPath().endsWith(".jar")) {
+                addClassesFromJar(new File(base.getPath()));
+              } else {
+                addClassesFromPath(new File(base.getPath()));
               }
+            } else {
+              System.err.println("Ignoring class path: " + base);
             }
           }
         }
