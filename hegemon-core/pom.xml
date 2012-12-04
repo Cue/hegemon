@@ -14,7 +14,7 @@
 
   <properties>
     <main.basedir>${project.parent.basedir}</main.basedir>
-    <jackson.version>1.9.8</jackson.version>
+    <jackson.version>2.1.1</jackson.version>
   </properties>
 
   <dependencies>
@@ -34,8 +34,8 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-jaxrs</artifactId>
+      <groupId>com.fasterxml.jackson.jaxrs</groupId>
+      <artifactId>jackson-jaxrs-json-provider</artifactId>
       <version>${jackson.version}</version>
     </dependency>
   </dependencies>

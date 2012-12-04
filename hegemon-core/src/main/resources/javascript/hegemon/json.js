@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+let MAPPER = new com.fasterxml.jackson.databind.ObjectMapper();
+
 function toJson(object) {
-  return new org.codehaus.jackson.map.ObjectMapper().writeValueAsString(object);
+  return MAPPER.writeValueAsString(object);
 }
 
 
