@@ -180,6 +180,14 @@ public class HegemonTestServer extends AbstractHandler {
 
 
   /**
+   * Hook for adding custom test output handling.
+   * @return the custom test output handler, or null to use no custom output.
+   */
+  protected CustomTestOutput createCustomTestOutputHandler() {
+    return null;
+  }
+
+  /**
    *  The request handler translates an HTTP request to a test class and method to run.
    */
   @Override
@@ -212,7 +220,7 @@ public class HegemonTestServer extends AbstractHandler {
 
       HegemonRunner runner = new HegemonRunner(c, baseRequest.getQueryString(), this.loadPath);
       RunNotifier notifier = new RunNotifier();
-      notifier.addListener(new ResponseListener(response));
+      notifier.addListener(new ResponseListener(response, createCustomTestOutputHandler()));
 
       long start = System.currentTimeMillis();
 

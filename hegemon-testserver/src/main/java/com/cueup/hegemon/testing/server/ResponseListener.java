@@ -39,9 +39,12 @@ class ResponseListener extends RunListener {
 
   private final Set<String> ignored;
 
+  private final CustomTestOutput customOutput;
 
-  ResponseListener(HttpServletResponse response) throws IOException {
+
+  ResponseListener(HttpServletResponse response, CustomTestOutput customOutput) throws IOException {
     this.output = response.getWriter();
+    this.customOutput = customOutput;
     this.failed = Maps.newHashMap();
     this.ignored = Sets.newHashSet();
   }
@@ -56,6 +59,9 @@ class ResponseListener extends RunListener {
     this.output.println(
         "<a href=\"?" + description.getMethodName() + "\">" + description.getDisplayName() + "</a>...");
     this.output.flush();
+    if (this.customOutput != null) {
+      this.customOutput.testStarted(this.output);
+    }
   }
 
 
@@ -69,6 +75,9 @@ class ResponseListener extends RunListener {
   public void testFinished(Description description) throws Exception {
     if (this.ignored.contains(description.getDisplayName())) {
       this.output.println("<span class=\"ignored\">IGNORED</span>");
+      if (this.customOutput != null) {
+        this.customOutput.testIgnored(this.output);
+      }
     } else if (this.failed.containsKey(description.getDisplayName())) {
       this.output.println("<span class=\"fail\">FAILED</span>");
       this.output.print("<pre>");
@@ -77,8 +86,14 @@ class ResponseListener extends RunListener {
               StringEscapeUtils.escapeHtml(
                   ExceptionUtils.getStackTrace(this.failed.get(description.getDisplayName())))));
       this.output.print("</pre>");
+      if (this.customOutput != null) {
+        this.customOutput.testFailure(this.output);
+      }
     } else {
       this.output.println("<span class=\"ok\">OK</span>");
+      if (this.customOutput != null) {
+        this.customOutput.testSuccess(this.output);
+      }
     }
     this.output.println("<br>");
     this.output.flush();
