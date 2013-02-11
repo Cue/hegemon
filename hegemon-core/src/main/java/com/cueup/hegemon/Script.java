@@ -21,16 +21,19 @@ import com.google.common.base.Joiner;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.NativeJavaClass;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Wrapper;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -52,12 +55,14 @@ public class Script {
    * The 'global' scope for this script.
    * Scripts are evaluated in this context.
    */
-  private final Scriptable sharedScope;
+  private final Scriptable localScope;
 
   /**
    * Whether a script has already been loaded into this context.
    */
   private final Set<String> loaded;
+
+  private final Map<String, Object> moduleCache;
 
   /**
    * Where we keep values that need to exist cross script invocations.
@@ -90,10 +95,30 @@ public class Script {
     Context.exit();
   }
 
+  private static final Scriptable PARENT_SCOPE;
+
+  static {
+    Context context = enterContext();
+    try {
+      PARENT_SCOPE = context.initStandardObjects();
+    } finally {
+      exitContext();
+    }
+  }
+
+
+  /**
+   * Load a new script from source with the default load path.
+   * @param source - The source code to be run.
+   * @throws LoadError when files don't load properly.
+   */
+  public Script(final String source) throws LoadError {
+    this(source, LoadPath.defaultPath());
+  }
 
   /**
    * Load a new script context from a source, found with a locator,
-   * loading globalFiles.
+   * loading globalFiles. 'hegemon/core' is loaded by default.
    * @param source - The source code to be run.
    * @param loadPath - How to find any files loaded.
    * @param globalFiles - Files to load to run this source.
@@ -103,45 +128,75 @@ public class Script {
                 final String... globalFiles) throws LoadError {
     this.loadPath = loadPath;
     this.loaded = Sets.newHashSet();
+    this.moduleCache = Maps.newHashMap();
+
 
     Context context = enterContext();
     try {
-      this.sharedScope = context.initStandardObjects();
-      ScriptableObject.putProperty(this.sharedScope, "log",
-          Context.javaToJS(LOG, this.sharedScope));
-      ScriptableObject.putProperty(this.sharedScope, "hegemon",
-          Context.javaToJS(this, this.sharedScope));
+      this.localScope = context.newObject(PARENT_SCOPE);
+      putCoreObjects(this.localScope);
 
+      ScriptableObject.putProperty(this.localScope, "core",
+          Context.javaToJS(load("hegemon/core"), this.localScope));
+
+      // Put via moduleNameFor and putProperty
       for (String globalFile : globalFiles) {
-        load(globalFile);
+        String moduleName = moduleNameFor(globalFile);
+        ScriptableObject.putProperty(this.localScope, moduleName, load(globalFile));
       }
 
-      context.evaluateString(this.sharedScope, source, "main", 1, null);
+      context.evaluateString(this.localScope, source, "main", 1, null);
     } finally {
       exitContext();
     }
   }
 
 
+  void putCoreObjects(Scriptable scope) {
+    ScriptableObject.putProperty(scope, "log", Context.javaToJS(LOG, scope));
+    ScriptableObject.putProperty(scope, "hegemon", Context.javaToJS(this, scope));
+  }
+
   /**
    * Load the script located with the Script's loadPath with the given filename.
    * @param scriptName - the name of the script to load (sans .js).
    * @throws LoadError when unable to load the associated resource.
    */
-  public void load(final String scriptName) throws LoadError {
+  public Object load(final String scriptName) throws LoadError {
+    // if we've already loaded it, return it
     if (this.loaded.contains(scriptName)) {
-      return;
+      return this.moduleCache.get(scriptName);
     }
     this.loaded.add(scriptName);
 
     String filename = scriptName + ".js";
+    String moduleName = moduleNameFor(scriptName);
     Context context = enterContext();
     try {
+      Scriptable newScope = context.newObject(PARENT_SCOPE);
+      putCoreObjects(newScope);
       String code = this.loadPath.load(filename);
-      context.evaluateString(this.sharedScope, code, filename, 1, null);
+      context.evaluateString(newScope, code, filename, 1, null);
+      try {
+        Object preWrap = context.evaluateString(newScope, moduleName, "import " + moduleName, 1, null);
+        Object module = unwrap(preWrap);
+        this.moduleCache.put(scriptName, module);
+        return module;
+      } catch (EcmaError e) {
+        if (!e.getMessage().startsWith("ReferenceError")) {
+          throw e;
+        } else {
+          return null;
+        }
+      }
     } finally {
       exitContext();
     }
+  }
+
+  private String moduleNameFor(final String scriptName) {
+    String[] parts = scriptName.split("[/\\\\]");
+    return parts[parts.length - 1];
   }
 
 
@@ -167,8 +222,8 @@ public class Script {
     Context context = enterContext();
 
     try {
-      final Scriptable localScope = context.newObject(this.sharedScope);
-      localScope.setPrototype(this.sharedScope);
+      final Scriptable localScope = context.newObject(this.localScope);
+      localScope.setPrototype(this.localScope);
       localScope.setParentScope(null);
 
       List<String> names = Lists.newArrayList();

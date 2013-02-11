@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 
-function load(name) {
-  hegemon.load(name);
-}
+core = {};
 
-// Returns the contents of a file as a string
-function slurp(name) {
+/**
+ * Returns the module requested.
+ * @param name - the name of the module to load.
+ * @return {Object} the named module object.
+ */
+core.load = function(name) {
+  return hegemon.load(name);
+};
+
+
+/**
+ * Returns the contents of a file as a string
+ * @param name - the name of the module to load.
+ * @return {Object} the contents of the module's file.
+ */
+core.slurp = function(name) {
   return hegemon.read(name);
-}
-
-load('hegemon/json');
+};
 
 
 /**

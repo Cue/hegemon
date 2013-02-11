@@ -26,21 +26,17 @@ import java.util.Random;
  * Tests for the Script class.
  */
 public class ScriptTest {
-
-  private static final LoadPath LOAD_PATH = LoadPath.defaultPath();
-
-
   @Test
-  public void testBasics() throws ScriptException, LoadError {
-    Script s = new Script("function add(a, b) { return a + b }", LOAD_PATH);
+  public void functionsShouldReturnJavaNativeTypes() throws ScriptException, LoadError {
+    Script s = new Script("function add(a, b) { return a + b }");
     Assert.assertEquals(106.0, s.run("add", 6, 100));
     Assert.assertEquals("ab", s.run("add", "a", "b"));
   }
 
 
   @Test
-  public void testConcurrent() throws ScriptException, InterruptedException, LoadError {
-    final Script s = new Script("function add(a, b) { return a + b }", LOAD_PATH);
+  public void concurrentRunsShouldNotEffectOneAnother() throws ScriptException, InterruptedException, LoadError {
+    final Script s = new Script("function add(a, b) { return a + b }");
     final Random random = new Random();
     TestUtils.runConcurrent(10, new Runnable() {
       @Override
@@ -54,17 +50,16 @@ public class ScriptTest {
 
 
   @Test
-  public void testGlobals() throws ScriptException, LoadError {
-    final Script s = new Script("", LOAD_PATH, "hegemon/core", "hegemon/test");
-    Assert.assertEquals("here", s.run("testMe"));
+  public void loadViaGlobalFilesImportsModuleSymbol() throws Exception {
+    final Script s = new Script("function tester() { return test.me(); }", LoadPath.defaultPath(), "hegemon/test");
+    Assert.assertEquals("here", s.run("tester"));
   }
 
 
   @Test
-  public void testImports() throws ScriptException, LoadError {
-    final Script s = new Script("", LOAD_PATH, "hegemon/core", "hegemon/test");
-    Assert.assertEquals(100, s.run("testImports"));
+  public void loadViaInternalFunctionReturnsModule() throws ScriptException, LoadError {
+    final Script s = new Script("let test = core.load('hegemon/test'); function tester() { return test.me(); }");
+    Assert.assertEquals("here", s.run("tester"));
   }
-
 }
 
