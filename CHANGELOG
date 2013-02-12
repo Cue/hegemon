@@ -1,2 +1,5 @@
+0.0.2-SNAPSHOT
+ * Switch to slf4j as our logging facade (from commons-logging)
+
 0.0.1 released - 10/19/12
  * First release of hegmon-{core,testing,testserver,annotations,guice}
