@@ -134,6 +134,8 @@ public class Script {
     Context context = enterContext();
     try {
       this.localScope = context.newObject(PARENT_SCOPE);
+      this.localScope.setParentScope(PARENT_SCOPE);
+      this.localScope.setPrototype(PARENT_SCOPE);
       putCoreObjects(this.localScope);
 
       ScriptableObject.putProperty(this.localScope, "core",
@@ -152,7 +154,15 @@ public class Script {
   }
 
 
-  void putCoreObjects(Scriptable scope) {
+  /**
+   * Getter for the local scope object.
+   */
+  public Scriptable getScope() {
+    return this.localScope;
+  }
+
+
+  private void putCoreObjects(Scriptable scope) {
     ScriptableObject.putProperty(scope, "log", Context.javaToJS(LOG, scope));
     ScriptableObject.putProperty(scope, "hegemon", Context.javaToJS(this, scope));
   }

@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
+let sequence = {};
 
-function forEach(obj, fn) {
+/**
+ * Calls fn(item) for each item in obj. Handles java arrays vs iteratables properly.
+ * @param obj
+ * @param fn
+ */
+sequence.forEach = function(obj, fn) {
   if (obj) {
     if ('length' in obj) {
       for (var i = 0; i < obj.length; i++) {
@@ -29,6 +35,6 @@ function forEach(obj, fn) {
     }
 
   }
-}
+};
 
 
