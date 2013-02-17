@@ -15,3 +15,5 @@
  */
 
 importedVar = 100;
+
+FOO_BAR = 100;

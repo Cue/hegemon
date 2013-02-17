@@ -18,6 +18,7 @@ package com.cueup.hegemon;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mozilla.javascript.EcmaError;
 
 import javax.script.ScriptException;
 import java.util.Random;
@@ -60,6 +61,20 @@ public class ScriptTest {
   public void loadViaInternalFunctionReturnsModule() throws ScriptException, LoadError {
     final Script s = new Script("let test = core.load('hegemon/test'); function tester() { return test.me(); }");
     Assert.assertEquals("here", s.run("tester"));
+  }
+
+  @Test
+  public void loadViaInternalFunctionDoesntPolluteGlobals() throws Exception {
+    try {
+      final Script s =
+          new Script("let testImport = core.load('hegemon/testImport'); function tester() { return FOO_BAR; }");
+      s.run("tester");
+      Assert.fail();
+    } catch (EcmaError e) {
+      if (!e.getMessage().startsWith("ReferenceError: \"FOO_BAR\"")) {
+        throw e;
+      }
+    }
   }
 }
 

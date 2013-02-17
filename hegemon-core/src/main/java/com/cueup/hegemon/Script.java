@@ -133,13 +133,7 @@ public class Script {
 
     Context context = enterContext();
     try {
-      this.localScope = context.newObject(PARENT_SCOPE);
-      this.localScope.setParentScope(PARENT_SCOPE);
-      this.localScope.setPrototype(PARENT_SCOPE);
-      putCoreObjects(this.localScope);
-
-      ScriptableObject.putProperty(this.localScope, "core",
-          Context.javaToJS(load("hegemon/core"), this.localScope));
+      this.localScope = createScope(context);
 
       // Put via moduleNameFor and putProperty
       for (String globalFile : globalFiles) {
@@ -162,9 +156,11 @@ public class Script {
   }
 
 
-  private void putCoreObjects(Scriptable scope) {
+  private void putCoreObjects(Scriptable scope) throws LoadError {
     ScriptableObject.putProperty(scope, "log", Context.javaToJS(LOG, scope));
     ScriptableObject.putProperty(scope, "hegemon", Context.javaToJS(this, scope));
+    ScriptableObject.putProperty(scope, "core", Context.javaToJS(load("hegemon/core"), scope));
+
   }
 
   /**
@@ -183,8 +179,8 @@ public class Script {
     String moduleName = moduleNameFor(scriptName);
     Context context = enterContext();
     try {
-      Scriptable newScope = context.newObject(PARENT_SCOPE);
-      putCoreObjects(newScope);
+      Scriptable newScope = createScope(context);
+
       String code = this.loadPath.load(filename);
       context.evaluateString(newScope, code, filename, 1, null);
       try {
@@ -203,6 +199,16 @@ public class Script {
       exitContext();
     }
   }
+
+
+  private Scriptable createScope(Context context) throws LoadError {
+    Scriptable newScope = context.newObject(PARENT_SCOPE);
+    newScope.setParentScope(null);
+    newScope.setPrototype(PARENT_SCOPE);
+    putCoreObjects(newScope);
+    return newScope;
+  }
+
 
   private String moduleNameFor(final String scriptName) {
     String[] parts = scriptName.split("[/\\\\]");
