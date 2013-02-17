@@ -37,4 +37,68 @@ sequence.forEach = function(obj, fn) {
   }
 };
 
+/**
+ * Calls fn(o) for each o in obj and returns true if all return values are truthy.
+ * @param obj - the object to iterate over.
+ * @param fn - the function to apply.
+ * @return {boolean} true if all values are truthy, else false.
+ */
+sequence.forAll = function(obj, fn) {
+  let allTrue = true;
+
+  sequence.forEach(obj, function(o) {
+    if (! fn(o)) {
+      allTrue = false;
+    }
+  });
+
+  return allTrue;
+};
+
+/**
+ * Returns an array containing the result of applying fn to each o in object.
+ * @param obj - the item to iterate over.
+ * @param fn - the function to apply.
+ * @return {Array} the results.
+ */
+sequence.map = function(obj, fn) {
+  let result = [];
+  sequence.forEach(obj, function(el) {
+    result.push(fn(el));
+  });
+  return result;
+};
+
+
+/**
+ * Returns the elements in obj for which fn(element) is truthy.
+ * @param obj - the object to iterate over.
+ * @param fn - the function to apply.
+ * @return {Array} each element in obj for which fn(element) is truthy.
+ */
+sequence.filter = function(obj, fn) {
+  let result = [];
+
+  sequence.forEach(obj, function(el) {
+    if (fn(el)) {
+      result.push(el);
+    }
+  });
+
+  return result;
+};
+
+/**
+ * Coerces any iterable to an Array.
+ * @param iterable - the item to iterate over.
+ * @return {Array} the iterable as an Array.
+ */
+sequence.toArray = function(iterable) {
+  return sequence.map(iterable, function(e) {
+    return e;
+  });
+};
+
+
+
 
