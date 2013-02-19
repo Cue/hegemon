@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-Assert = org.junit.Assert;
-
 let inspect = core.load('hegemon/inspect');
 
 let unittest = {};
+
+unittest.Assert = org.junit.Assert;
 
 /**
  * Returns all keys in a scope that start with 'test' and places them in list.
