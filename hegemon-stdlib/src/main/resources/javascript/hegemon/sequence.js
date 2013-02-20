@@ -100,5 +100,16 @@ sequence.toArray = function(iterable) {
 };
 
 
+// TODO(kev): Change to forEach usage. We're going to iterate all the way through (for map) anyway.
+sequence.contains = function(iterable, item) {
+  for each(let each in sequence.toArray(iterable)) {
+    if (each == item) {
+      return true;
+    }
+  }
+  return false;
+};
+
+
 
 
