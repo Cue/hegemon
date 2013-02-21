@@ -113,3 +113,27 @@ sequence.contains = function(iterable, item) {
 
 
 
+// Currently actually a find + map?
+sequence.findFirst = function(obj, fn) {
+  if (obj) {
+    if ('length' in obj) {
+      for (let i = 0; i < obj.length; i++) {
+        let result = fn(obj[i]);
+        if (result) {
+          return result;
+        }
+      }
+    } else {
+      let it = obj.iterator();
+      while (it.hasNext()) {
+        let result = fn(it.next());
+        if (result) {
+          return result;
+        }
+      }
+    }
+  }
+
+  return null;
+};
+
