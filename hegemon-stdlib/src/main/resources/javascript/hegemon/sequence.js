@@ -101,6 +101,12 @@ sequence.toArray = function(iterable) {
 
 
 // TODO(kev): Change to forEach usage. We're going to iterate all the way through (for map) anyway.
+/**
+ * Determines if the given iterable contains the given item.
+ * @param iterable the item to iterate over.
+ * @param item the item to look for.
+ * @return {boolean} whether the item is found.
+ */
 sequence.contains = function(iterable, item) {
   for each(let each in sequence.toArray(iterable)) {
     if (each == item) {
@@ -111,9 +117,13 @@ sequence.contains = function(iterable, item) {
 };
 
 
-
-
 // Currently actually a find + map?
+/**
+ * Finds the first item in the iterable where the given function returns true.
+ * @param obj the item to iterate over.
+ * @param fn the predicate.
+ * @return {*} the first matching item found.
+ */
 sequence.findFirst = function(obj, fn) {
   if (obj) {
     if ('length' in obj) {
