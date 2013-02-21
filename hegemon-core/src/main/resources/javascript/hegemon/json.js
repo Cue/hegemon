@@ -28,3 +28,8 @@ json.toJson = function(object) {
 };
 
 
+json.roundtripJson = function(object) {
+  return JSON.parse(json.toJson(object));
+};
+
+
