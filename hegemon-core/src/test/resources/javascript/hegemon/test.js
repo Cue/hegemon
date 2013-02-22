@@ -16,12 +16,12 @@
 
 // A test for Script loading.
 
-load('hegemon/testImport');
+let testImport = core.load('hegemon/testImport');
 
-function testMe() {
+test = {};
+
+test.me = function() {
   return 'here';
-}
+};
 
-function testImports() {
-  return importedVar;
-}
+function testImports() { return testImport.importedVar; }

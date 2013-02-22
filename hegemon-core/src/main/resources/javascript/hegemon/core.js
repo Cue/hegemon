@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 
-function load(name) {
-  hegemon.load(name);
-}
+core = {};
 
-// Returns the contents of a file as a string
-function slurp(name) {
+/**
+ * Returns the module requested.
+ * @param name - the name of the module to load.
+ * @return {Object} the named module object.
+ */
+core.load = function(name) {
+  return hegemon.load(name);
+};
+
+
+/**
+ * Returns the contents of a file as a string
+ * @param name - the name of the module to load.
+ * @return {Object} the contents of the module's file.
+ */
+core.slurp = function(name) {
   return hegemon.read(name);
-}
-
-load('hegemon/json');
+};
 
 
 /**
@@ -34,40 +44,6 @@ load('hegemon/json');
  * @param {Object} el - The type that may or may not be there.
  * @return {Object} el if it is truthy, else null.
  */
-let nullable = function(el) { return el || null; };
+core.nullable = function(el) { return el || null; };
 
-
-IGNORE_KEYS = {
-  'notifyAll': 1,
-  'notify': 1,
-  'wait': 1,
-  'toString': 1,
-  'hashCode': 1,
-  'equals': 1,
-  'getClass': 1,
-  'class': 1
-};
-
-
-function objectItems(obj) {
-  let result = [];
-  for (var key in obj) {
-    if (!IGNORE_KEYS[key]) {
-      result.push([key, obj[key]]);
-    }
-  }
-  return result;
-}
-
-
-
-function getKeys(obj) {
-  let result = [];
-  for (var key in obj) {
-    if (!IGNORE_KEYS[key]) {
-      result.push(key);
-    }
-  }
-  return result;
-}
 

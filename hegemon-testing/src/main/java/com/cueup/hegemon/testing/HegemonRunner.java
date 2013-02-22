@@ -89,7 +89,7 @@ public class HegemonRunner extends ParentRunner<String> {
     public void evaluate() throws Exception { // lint: disable=IllegalThrowsCheck
       Script.enterContext();
       try {
-        this.script.run("setTestInstance", this.instance);
+        this.script.run("unittest.setTestInstance", this.instance);
         this.script.run(this.name, this.arguments);
       } catch (Throwable t) { //lint: disable=IllegalCatchCheck
         throw new RuntimeException(t);
@@ -154,7 +154,8 @@ public class HegemonRunner extends ParentRunner<String> {
       throw new InitializationError("Hegemon tests must be annotated with @Script");
     }
     try {
-      this.testScript = new Script("", loadPath, "hegemon/core", "hegemon/unittest", scriptData.filename());
+      String source = loadPath.load(scriptData.filename() + ".js");
+      this.testScript = new Script(source, loadPath, "hegemon/unittest");
     } catch (LoadError e) {
       throw new InitializationError(e);
     }
@@ -165,7 +166,7 @@ public class HegemonRunner extends ParentRunner<String> {
   protected List<String> getChildren() {
     if (this.method == null) {
       List<String> testNames = Lists.newArrayList();
-      this.testScript.run("collectTests", testNames);
+      this.testScript.run("unittest.collectTests", this.testScript.getScope(), testNames);
       return testNames;
     } else {
       return ImmutableList.of(this.method);

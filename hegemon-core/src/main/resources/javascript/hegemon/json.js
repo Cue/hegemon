@@ -14,10 +14,22 @@
  * limitations under the License.
  */
 
+let json = {};
+
 let MAPPER = new com.fasterxml.jackson.databind.ObjectMapper();
 
-function toJson(object) {
+/**
+ * Converts object to a json string.
+ * @param object - the object to convert.
+ * @return {String} the resultant json.
+ */
+json.toJson = function(object) {
   return MAPPER.writeValueAsString(object);
-}
+};
+
+
+json.roundtripJson = function(object) {
+  return JSON.parse(json.toJson(object));
+};
 
 

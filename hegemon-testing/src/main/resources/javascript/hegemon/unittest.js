@@ -14,28 +14,39 @@
  * limitations under the License.
  */
 
-load('hegemon/core');
+let inspect = core.load('hegemon/inspect');
 
-Assert = org.junit.Assert;
+let unittest = {};
 
+unittest.Assert = org.junit.Assert;
 
-function collectTests(list) {
-  for each(var name in getKeys(this)) {
+/**
+ * Returns all keys in a scope that start with 'test' and places them in list.
+ * @param scope {Scriptable} a Rhino Scriptable suitable as a scope.
+ * @param list {java.util.List} the list to add to.
+ */
+unittest.collectTests = function(scope, list) {
+  for each(var name in inspect.getKeys(scope)) {
     if (name.substring(0, 4) == 'test') {
       list.add(name);
     }
   }
-}
-
+};
 
 var javaTest;
 
-
-function setTestInstance(instance) {
+/**
+ * Stores the test instance for use later.
+ * @param instance - the instance to store.
+ */
+unittest.setTestInstance = function(instance) {
   javaTest = instance;
-}
+};
 
-
-function getTestInstance() {
+/**
+ * Getter for the test instance.
+ * @return the javaTest instance.
+ */
+unittest.getTestInstance = function() {
   return javaTest;
-}
+};
