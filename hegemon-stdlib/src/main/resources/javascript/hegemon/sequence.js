@@ -94,9 +94,11 @@ sequence.filter = function(obj, fn) {
  * @return {Array} the iterable as an Array.
  */
 sequence.toArray = function(iterable) {
-  return sequence.map(iterable, function(e) {
-    return e;
+  let result = [];
+  sequence.forEach(iterable, function(x) {
+    result.push(x);
   });
+  return result;
 };
 
 
