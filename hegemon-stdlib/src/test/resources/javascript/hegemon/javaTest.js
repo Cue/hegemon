@@ -44,3 +44,13 @@ function testForEachWithJavaArray() {
   });
   Assert.assertEquals(['a', 'b', 'c'], results);
 }
+
+function testToArrayWithJSArray() {
+  let iterable = [1, 2, 3, 'abc'];
+  Assert.assertEquals(iterable, sequence.toArray(iterable));
+}
+
+function testToArrayWithJavaArray() {
+  let array = com.cueup.hegemon.stdlib.JavaJsTest.arrayOf('a', 'b', 'c');
+  Assert.assertEquals(['a', 'b', 'c'], sequence.toArray(array));
+}
