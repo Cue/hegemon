@@ -169,7 +169,9 @@ public class HegemonRunner extends ParentRunner<String> {
 
   @Override
   protected List<String> getChildren() {
-    if (this.testScript == null) {
+    if (this.method != null) {
+      return ImmutableList.of(this.method);
+    } else if (this.testScript == null) {
       List<String> testNames = Lists.newArrayList();
       for (Method method : this.instance.getClass().getMethods()) {
         if (method.isAnnotationPresent(Test.class)
@@ -179,12 +181,10 @@ public class HegemonRunner extends ParentRunner<String> {
         }
       }
       return testNames;
-    } else if (this.method == null) {
+    } else {
       List<String> testNames = Lists.newArrayList();
       this.testScript.run("unittest.collectTests", this.testScript.getScope(), testNames);
       return testNames;
-    } else {
-      return ImmutableList.of(this.method);
     }
   }
 
