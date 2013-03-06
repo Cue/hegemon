@@ -62,6 +62,11 @@ public class Script {
    */
   private final Set<String> loaded;
 
+  /**
+   * Whether a script is currently loading.
+   */
+  private final Set<String> loading;
+
   private final Map<String, Object> moduleCache;
 
   /**
@@ -128,12 +133,13 @@ public class Script {
                 final String... globalFiles) throws LoadError {
     this.loadPath = loadPath;
     this.loaded = Sets.newHashSet();
+    this.loading = Sets.newHashSet();
     this.moduleCache = Maps.newHashMap();
 
 
     Context context = enterContext();
     try {
-      this.localScope = createScope(context);
+      this.localScope = createScope(context, true);
 
       // Put via moduleNameFor and putProperty
       for (String globalFile : globalFiles) {
@@ -156,11 +162,12 @@ public class Script {
   }
 
 
-  private void putCoreObjects(Scriptable scope) throws LoadError {
+  private void putCoreObjects(Scriptable scope, boolean includeCore) throws LoadError {
     ScriptableObject.putProperty(scope, "log", Context.javaToJS(LOG, scope));
     ScriptableObject.putProperty(scope, "hegemon", Context.javaToJS(this, scope));
-    ScriptableObject.putProperty(scope, "core", Context.javaToJS(load("hegemon/core"), scope));
-
+    if (includeCore) {
+      ScriptableObject.putProperty(scope, "core", Context.javaToJS(load("hegemon/core"), scope));
+    }
   }
 
   /**
@@ -170,16 +177,19 @@ public class Script {
    */
   public Object load(final String scriptName) throws LoadError {
     // if we've already loaded it, return it
+    if (this.loading.contains(scriptName)) {
+      throw new RuntimeException("Circular dependency when loading: " + scriptName);
+    }
     if (this.loaded.contains(scriptName)) {
       return this.moduleCache.get(scriptName);
     }
-    this.loaded.add(scriptName);
+    this.loading.add(scriptName);
 
     String filename = scriptName + ".js";
     String moduleName = moduleNameFor(scriptName);
     Context context = enterContext();
     try {
-      Scriptable newScope = createScope(context);
+      Scriptable newScope = createScope(context, !"hegemon/core".equals(scriptName));
 
       String code = this.loadPath.load(filename);
       context.evaluateString(newScope, code, filename, 1, null);
@@ -196,16 +206,18 @@ public class Script {
         }
       }
     } finally {
+      this.loading.remove(scriptName);
+      this.loaded.add(scriptName);
       exitContext();
     }
   }
 
 
-  private Scriptable createScope(Context context) throws LoadError {
+  private Scriptable createScope(Context context, boolean includeCore) throws LoadError {
     Scriptable newScope = context.newObject(PARENT_SCOPE);
     newScope.setParentScope(null);
     newScope.setPrototype(PARENT_SCOPE);
-    putCoreObjects(newScope);
+    putCoreObjects(newScope, includeCore);
     return newScope;
   }
 
