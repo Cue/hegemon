@@ -23,6 +23,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
+import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.internal.runners.statements.RunAfters;
 import org.junit.internal.runners.statements.RunBefores;
 import org.junit.runner.Description;
@@ -39,6 +41,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 
 /**
@@ -151,20 +155,31 @@ public class HegemonRunner extends ParentRunner<String> {
 
     TestScript scriptData = klass.getAnnotation(TestScript.class);
     if (scriptData == null) {
-      throw new InitializationError("Hegemon tests must be annotated with @Script");
-    }
-    try {
-      String source = loadPath.load(scriptData.filename() + ".js");
-      this.testScript = new Script(source, loadPath, "hegemon/unittest");
-    } catch (LoadError e) {
-      throw new InitializationError(e);
+      this.testScript = null;
+    } else {
+      try {
+        String source = loadPath.load(scriptData.filename() + ".js");
+        this.testScript = new Script(source, loadPath, "hegemon/unittest");
+      } catch (LoadError e) {
+        throw new InitializationError(e);
+      }
     }
   }
 
 
   @Override
   protected List<String> getChildren() {
-    if (this.method == null) {
+    if (this.testScript == null) {
+      List<String> testNames = Lists.newArrayList();
+      for (Method method : this.instance.getClass().getMethods()) {
+        if (method.isAnnotationPresent(Test.class)
+            && (method.getModifiers() & Modifier.PUBLIC) != 0
+            && method.getParameterTypes().length == 0) {
+          testNames.add(method.getName());
+        }
+      }
+      return testNames;
+    } else if (this.method == null) {
       List<String> testNames = Lists.newArrayList();
       this.testScript.run("unittest.collectTests", this.testScript.getScope(), testNames);
       return testNames;
@@ -185,30 +200,40 @@ public class HegemonRunner extends ParentRunner<String> {
     Description d = describeChild(child);
     notifier.fireTestStarted(d);
 
-    Object[] arguments = null;
-    try {
-      arguments = (Object[]) this.getTestClass().getJavaClass().getMethod("getArguments").invoke(this.instance);
-    } catch (IllegalAccessException e) {
-      notifier.fireTestFailure(new Failure(d, e));
-    } catch (InvocationTargetException e) {
-      notifier.fireTestFailure(new Failure(d, e));
-    } catch (NoSuchMethodException e) {
-      arguments = new Object[0];
+    Statement statement;
+    if (this.testScript == null) {
+      try {
+        statement = new InvokeMethod(new FrameworkMethod(this.instance.getClass().getMethod(child)), this.instance);
+      } catch (NoSuchMethodException e) {
+        notifier.fireTestFailure(new Failure(d, e));
+        statement = null;
+      }
+    } else {
+      Object[] arguments = null;
+      try {
+        arguments = (Object[]) this.getTestClass().getJavaClass().getMethod("getArguments").invoke(this.instance);
+      } catch (IllegalAccessException e) {
+        notifier.fireTestFailure(new Failure(d, e));
+      } catch (InvocationTargetException e) {
+        notifier.fireTestFailure(new Failure(d, e));
+      } catch (NoSuchMethodException e) {
+        arguments = new Object[0];
+      }
+
+      statement = arguments == null ? null : new RunScriptTest(this.testScript, this.instance, arguments, child);
     }
 
-    Statement statement = new RunScriptTest(this.testScript, this.instance, arguments, child);
+    if (statement != null) {
+      List<FrameworkMethod> before = getTestClass().getAnnotatedMethods(Before.class);
+      if (!before.isEmpty()) {
+        statement = new RunBefores(statement, before, this.instance);
+      }
 
-    List<FrameworkMethod> before = getTestClass().getAnnotatedMethods(Before.class);
-    if (!before.isEmpty()) {
-      statement = new RunBefores(statement, before, this.instance);
-    }
+      List<FrameworkMethod> after = getTestClass().getAnnotatedMethods(After.class);
+      if (!after.isEmpty()) {
+        statement = new RunAfters(statement, after, this.instance);
+      }
 
-    List<FrameworkMethod> after = getTestClass().getAnnotatedMethods(After.class);
-    if (!after.isEmpty()) {
-      statement = new RunAfters(statement, after, this.instance);
-    }
-
-    if (arguments != null) {
       try {
         statement.evaluate();
       } catch (Throwable e) { // lint: disable=IllegalCatchCheck
