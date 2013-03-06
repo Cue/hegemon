@@ -187,6 +187,14 @@ public class HegemonTestServer extends AbstractHandler {
     return null;
   }
 
+
+  /**
+   * Hook for adding custom handling for each test class run.
+   */
+  protected void startTestClass() {
+  }
+
+
   /**
    *  The request handler translates an HTTP request to a test class and method to run.
    */
@@ -222,6 +230,7 @@ public class HegemonTestServer extends AbstractHandler {
       RunNotifier notifier = new RunNotifier();
       notifier.addListener(new ResponseListener(response, createCustomTestOutputHandler()));
 
+      startTestClass();
       long start = System.currentTimeMillis();
 
       response.setContentType("text/html;charset=utf-8");
