@@ -175,7 +175,7 @@ public class Script {
    * @param scriptName - the name of the script to load (sans .js).
    * @throws LoadError when unable to load the associated resource.
    */
-  public Object load(final String scriptName) throws LoadError {
+  public synchronized Object load(final String scriptName) throws LoadError {
     // if we've already loaded it, return it
     if (this.loading.contains(scriptName)) {
       throw new RuntimeException("Circular dependency when loading: " + scriptName);
