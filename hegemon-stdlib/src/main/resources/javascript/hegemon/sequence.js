@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
+
 let sequence = {};
+
+
+/**
+ * @typedef {Array|Arguments|{length: number}|java.lang.Iterable}
+ */
+sequence.SequenceType;
+
 
 /**
  * Calls fn(item) for each item in obj. Handles java arrays vs iteratables properly.
- * @param obj
- * @param fn
+ * @param {Array.<T>|sequence.SequenceType} obj
+ * @param {function(T)} fn The function to call on each item.
+ * @template T
  */
 sequence.forEach = function(obj, fn) {
   if (obj) {
@@ -28,20 +37,21 @@ sequence.forEach = function(obj, fn) {
         fn(obj[i]);
       }
     } else {
-      var it = obj.iterator();
+      var it = (/** @type java.util.Iterator */ obj.iterator());
       while (it.hasNext()) {
         fn(it.next());
       }
     }
-
   }
 };
 
 /**
  * Calls fn(o) for each o in obj and returns true if all return values are truthy.
- * @param obj - the object to iterate over.
- * @param fn - the function to apply.
- * @return {boolean} true if all values are truthy, else false.
+ * This is not lazy -- the function will be called for all items in obj even after it returns false for one.
+ * @param {Array.<T>|sequence.SequenceType} obj The object to iterate over.
+ * @param {function(T)} fn The function to apply.
+ * @return {boolean} Whether all return values were truthy.
+ * @template T
  */
 sequence.forAll = function(obj, fn) {
   let allTrue = true;
@@ -55,11 +65,13 @@ sequence.forAll = function(obj, fn) {
   return allTrue;
 };
 
+
 /**
  * Returns an array containing the result of applying fn to each o in object.
- * @param obj - the item to iterate over.
- * @param fn - the function to apply.
- * @return {Array} the results.
+ * @param {Array.<T>|sequence.SequenceType} obj The object to iterate over.
+ * @param {function(T): ?} fn The function to apply.
+ * @return {Array} The results.
+ * @template T
  */
 sequence.map = function(obj, fn) {
   let result = [];
@@ -72,9 +84,10 @@ sequence.map = function(obj, fn) {
 
 /**
  * Returns the elements in obj for which fn(element) is truthy.
- * @param obj - the object to iterate over.
- * @param fn - the function to apply.
- * @return {Array} each element in obj for which fn(element) is truthy.
+ * @param {Array.<T>|sequence.SequenceType} obj The object to iterate over.
+ * @param {function(T)} fn The function to apply.
+ * @return {Array} The items in obj for which fn returned a truthy value.
+ * @template T
  */
 sequence.filter = function(obj, fn) {
   let result = [];
@@ -88,10 +101,12 @@ sequence.filter = function(obj, fn) {
   return result;
 };
 
+
 /**
  * Coerces any iterable to an Array.
- * @param iterable - the item to iterate over.
- * @return {Array} the iterable as an Array.
+ * @param {Array.<T>|sequence.SequenceType} iterable The item to iterate over.
+ * @return {Array.<T>} The iterable as an Array.
+ * @template T
  */
 sequence.toArray = function(iterable) {
   let result = [];
@@ -105,12 +120,14 @@ sequence.toArray = function(iterable) {
 // TODO(kev): Change to forEach usage. We're going to iterate all the way through (for map) anyway.
 /**
  * Determines if the given iterable contains the given item.
- * @param iterable the item to iterate over.
- * @param item the item to look for.
- * @return {boolean} whether the item is found.
+ * @param {sequence.SequenceType} iterable The item to iterate over.
+ * @param {*} item The item to look for.
+ * @return {boolean} Whether the item is found.
  */
 sequence.contains = function(iterable, item) {
   for each(let each in sequence.toArray(iterable)) {
+    // TODO(david): this be a strict ("===") equality check. (need to make sure that changing that won't break anything
+    // first, though)
     if (each == item) {
       return true;
     }
@@ -121,10 +138,11 @@ sequence.contains = function(iterable, item) {
 
 // Currently actually a find + map?
 /**
- * Finds the first item in the iterable where the given function returns true.
- * @param obj the item to iterate over.
- * @param fn the predicate.
- * @return {*} the first matching item found.
+ * Finds the first item in the iterable where the given function returns a truthy value.
+ * @param {Array.<T>|sequence.SequenceType} obj the item to iterate over.
+ * @param {function(T)} fn The predicate.
+ * @return {T?} The first matching item found, or null if there was no result.
+ * @template T
  */
 sequence.findFirst = function(obj, fn) {
   if (obj) {
