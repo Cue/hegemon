@@ -29,7 +29,7 @@ import java.util.Random;
 public class ScriptTest {
   @Test
   public void functionsShouldReturnJavaNativeTypes() throws ScriptException, LoadError {
-    Script s = new Script("function add(a, b) { return a + b }");
+    Script s = new Script("test", "function add(a, b) { return a + b }");
     Assert.assertEquals(106.0, s.run("add", 6, 100));
     Assert.assertEquals("ab", s.run("add", "a", "b"));
   }
@@ -37,7 +37,7 @@ public class ScriptTest {
 
   @Test
   public void concurrentRunsShouldNotEffectOneAnother() throws ScriptException, InterruptedException, LoadError {
-    final Script s = new Script("function add(a, b) { return a + b }");
+    final Script s = new Script("test", "function add(a, b) { return a + b }");
     final Random random = new Random();
     TestUtils.runConcurrent(10, new Runnable() {
       @Override
@@ -52,22 +52,22 @@ public class ScriptTest {
 
   @Test
   public void loadViaGlobalFilesImportsModuleSymbol() throws Exception {
-    final Script s = new Script("function tester() { return test.me(); }", LoadPath.defaultPath(), "hegemon/test");
+    final Script s = new Script("test", "function tester() { return test.me(); }", LoadPath.defaultPath(), "hegemon/test");
     Assert.assertEquals("here", s.run("tester"));
   }
 
 
   @Test
   public void loadViaInternalFunctionReturnsModule() throws ScriptException, LoadError {
-    final Script s = new Script("let test = core.load('hegemon/test'); function tester() { return test.me(); }");
+    final Script s = new Script("test", "let test = core.load('hegemon/test'); function tester() { return test.me(); }");
     Assert.assertEquals("here", s.run("tester"));
   }
 
   @Test
   public void loadViaInternalFunctionDoesntPolluteGlobals() throws Exception {
     try {
-      final Script s =
-          new Script("let testImport = core.load('hegemon/testImport'); function tester() { return FOO_BAR; }");
+      final Script s = new Script(
+          "test", "let testImport = core.load('hegemon/testImport'); function tester() { return FOO_BAR; }");
       s.run("tester");
       Assert.fail();
     } catch (EcmaError e) {
