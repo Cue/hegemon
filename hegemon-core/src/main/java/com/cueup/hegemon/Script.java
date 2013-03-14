@@ -47,6 +47,11 @@ public class Script {
   private static final Logger LOG = LoggerFactory.getLogger(Script.class);
 
   /**
+   * The name of this script.
+   */
+  private final String name;
+
+  /**
    * Allows for user defined script location.
    */
   private final LoadPath loadPath;
@@ -114,23 +119,28 @@ public class Script {
 
   /**
    * Load a new script from source with the default load path.
+   * @param name - The name of the script.
    * @param source - The source code to be run.
    * @throws LoadError when files don't load properly.
    */
-  public Script(final String source) throws LoadError {
-    this(source, LoadPath.defaultPath());
+  public Script(final String name, final String source) throws LoadError {
+    this(name, source, LoadPath.defaultPath());
   }
 
   /**
    * Load a new script context from a source, found with a locator,
    * loading globalFiles. 'hegemon/core' is loaded by default.
+   * @param name - The name of the script.
    * @param source - The source code to be run.
    * @param loadPath - How to find any files loaded.
    * @param globalFiles - Files to load to run this source.
    * @throws LoadError when files don't load properly.
    */
-  public Script(final String source, final LoadPath loadPath,
+  public Script(final String name,
+                final String source,
+                final LoadPath loadPath,
                 final String... globalFiles) throws LoadError {
+    this.name = name;
     this.loadPath = loadPath;
     this.loaded = Sets.newHashSet();
     this.loading = Sets.newHashSet();
@@ -147,7 +157,7 @@ public class Script {
         ScriptableObject.putProperty(this.localScope, moduleName, load(globalFile));
       }
 
-      context.evaluateString(this.localScope, source, "main", 1, null);
+      context.evaluateString(this.localScope, source, this.name, 1, null);
     } finally {
       exitContext();
     }
@@ -267,7 +277,7 @@ public class Script {
         names.add("__p" + i);
       }
       String code = functionName + "(" + Joiner.on(",").join(names) + ");";
-      return unwrap(context.evaluateString(localScope, code, "main", 1, null));
+      return unwrap(context.evaluateString(localScope, code, this.name, 1, null));
     } finally {
       exitContext();
     }

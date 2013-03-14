@@ -40,7 +40,7 @@ public class ScriptCache {
       @Override
       public Script load(String key) throws Exception {
         // TODO(robbyw): Dependencies should be managed elsewhere.
-        return new Script(loadPath.load(key), loadPath, "hegemon/core");
+        return new Script(key, loadPath.load(key), loadPath, "hegemon/core");
       }
     });
   }
