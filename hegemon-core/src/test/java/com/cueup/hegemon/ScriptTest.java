@@ -76,5 +76,10 @@ public class ScriptTest {
       }
     }
   }
+
+  @Test(expected = RuntimeException.class)
+  public void circularDependencyThrowsException() throws Exception {
+    new Script("test", "", LoadPath.defaultPath(), "hegemon/testCircleA");
+  }
 }
 
