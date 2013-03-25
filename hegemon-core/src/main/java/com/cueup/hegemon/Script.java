@@ -37,7 +37,29 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A pre-parsed script.
+ * Script objects are the basic interface to running JavaScript using hegemon.
+ *
+ * In it's simplest usage, Script can be instantiated given a name and some source code and
+ * then function that exist in the Script's environment can be accessed via the 'run' method.
+ *
+ * Script also introduces a concept of 'module loading' to JavaScript. If you would like
+ * symbols defined in a file to be accessible for other files, define a variable with the
+ * same name as the file it's located in and attach 'public' values to it. For example,
+ * in a file named 'foo.js', one might export a function named 'bar' like so:
+ *
+ *     let foo = {};
+ *     foo.bar = function() { };
+ *
+ * Given this foo.js, another file can load the 'foo' object using 'core.load':
+ *
+ *     let foo = core.load('foo'); // Aliasing can happen by changing variable names
+ *     foo.bar(); // I can now access anything that was attached to foo in foo.js.
+ *
+ * 'core.load' will return null when no explicit public object is defined. Loaded modules
+ * resulting from 'core.load' calls are cached and the source is not recompiled. Note that
+ * this only applies to loads from within the source file, however. If Script objects with
+ * the same name and source are going to be built multiple times, using a ScriptCache is
+ * probably preferable.
  */
 public class Script {
 
@@ -182,14 +204,15 @@ public class Script {
 
   /**
    * Load the script located with the Script's loadPath with the given filename.
+   * If a circular dependency is detected, a RuntimeException will be thrown.
    * @param scriptName - the name of the script to load (sans .js).
    * @throws LoadError when unable to load the associated resource.
    */
   public synchronized Object load(final String scriptName) throws LoadError {
-    // if we've already loaded it, return it
     if (this.loading.contains(scriptName)) {
       throw new RuntimeException("Circular dependency when loading: " + scriptName);
     }
+    // if we've already loaded it, return it
     if (this.loaded.contains(scriptName)) {
       return this.moduleCache.get(scriptName);
     }
