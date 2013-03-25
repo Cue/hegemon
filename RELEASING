@@ -3,3 +3,4 @@
 3. Update hegemon-example.
 4. mvn release:prepare # This will push things to github!
 5. mvn release:perform -Darguments=-Dgpg.passphrase=PASSPHRASE # It'll prompt anyway, but work this time
+6. Follow the instructions here to sync with the central repo: https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide#SonatypeOSSMavenRepositoryUsageGuide-8a.ReleaseIt
