@@ -28,7 +28,7 @@
   <scm>
     <connection>scm:git:git://github.com/Cue/hegemon-example.git</connection>
     <developerConnection>scm:git:git@github.com:Cue/hegemon.git</developerConnection>
-    <url>git://github.com/Cue/hegemon-example.git</url>
+    <url>git://github.com/Cue/hegemon.git</url>
     <tag>HEAD</tag>
   </scm>
 
