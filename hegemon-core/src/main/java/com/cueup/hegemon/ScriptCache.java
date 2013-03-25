@@ -32,7 +32,7 @@ public class ScriptCache {
 
 
   /**
-   * Create a ScriptCache and load 'hegemon/core'.
+   * Create a ScriptCache that loads scripts from the given LoadPath.
    * @param loadPath the LoadPath to load files from.
    */
   public ScriptCache(final LoadPath loadPath) {
@@ -40,7 +40,7 @@ public class ScriptCache {
       @Override
       public Script load(String key) throws Exception {
         // TODO(robbyw): Dependencies should be managed elsewhere.
-        return new Script(key, loadPath.load(key), loadPath, "hegemon/core");
+        return new Script(key, loadPath.load(key), loadPath);
       }
     });
   }
