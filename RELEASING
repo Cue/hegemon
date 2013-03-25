@@ -1,0 +1,5 @@
+1. Update CHANGELOG.
+2. Update READMEs.
+3. Update hegemon-example.
+4. mvn release:prepare # This will push things to github!
+5. mvn release:perform -Darguments=-Dgpg.passphrase=PASSPHRASE # It'll prompt anyway, but work this time
