@@ -152,6 +152,11 @@ public class Script {
   /**
    * Load a new script context from a source, found with a locator,
    * loading globalFiles. 'hegemon/core' is loaded by default.
+   *
+   * For each file in globalFiles, a module will be loaded and a variable with the name of the globalFile's basename
+   * will be injected into the environment. For example, passing a name to globalFiles like "foo/bar/baz" will result
+   * in `baz` being made available in the script, just as `let baz = core.load('foo/bar/baz');` had been written.
+   *
    * @param name - The name of the script.
    * @param source - The source code to be run.
    * @param loadPath - How to find any files loaded.
