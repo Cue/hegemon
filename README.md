@@ -12,23 +12,24 @@ For examples in the context of a java project, see the [example application](htt
 The essentials of hegemon allow you to run JavaScript functions from Java without boilerplate.
 
 ```java
-Script script = new Script("function foo() { return 3 + 4; }", LoadPath.defaultPath());
-script.run("foo"); // returns 7
+new Script("myscript", "function foo() { return 3 + 4; }").run("foo"); // returns 7
 ```
 
-hegemon also allows you to load JavaScript files both from Java, via
-varargs in the `Script` constructor:
+hegemon also introduces python/go inspired module loading to JavaScript. This can be done via a varargs constructor
+argument:
 
 ```java
-new Script("function foo() { return definedInUtil(); }", LoadPath.defaultPath(), "util");
+// The 'util' module is loaded and a variable named 'util' (default naming based on filename) is injected into scope.
+new Script("myscript", "function foo() { return util.definedInUtil(); }", LoadPath.defaultPath(), "util");
 ```
 
-And also from inside your JavaScript itself with the 'hegemon/core' provided `load` function:
+And also from inside your JavaScript itself with the 'hegemon/core' provided `core.load` function:
 
 ```java
-new Script("load('util'); function foo() { return definedInUtil(); }",
-  LoadPath.defaultPath(), 'hegemon/core');
+new Script("let util = core.load('util'); function foo() { return util.definedInUtil(); }", LoadPath.defaultPath());
 ```
+
+For more on module loading, see [Script.java](hegemon-core/src/main/java/com/cueup/hegemon/Script.java).
 
 Reloading files can be expensive, so hegemon-core ships with a `ScriptCache`.
 
@@ -65,7 +66,7 @@ Add with maven:
   <dependency>
     <groupId>com.cueup.hegemon</groupId>
     <artifactId>hegemon-core</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
   </dependency>
 </dependencies>
 ```
@@ -103,7 +104,7 @@ Add with maven:
   <dependency>
     <groupId>com.cueup.hegemon</groupId>
     <artifactId>hegemon-testing</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <scope>test</scope>
   </dependency>
 </dependencies>
@@ -128,7 +129,7 @@ Add with maven:
   <dependency>
     <groupId>com.cueup.hegemon</groupId>
     <artifactId>hegemon-testserver</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <scope>test</scope>
   </dependency>
 </dependencies>
@@ -163,7 +164,7 @@ Add it to your project with maven:
   <dependency>
     <groupId>com.cueup.hegemon</groupId>
     <artifactId>hegemon-guice</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
   </dependency>
 </dependencies>
 ```
