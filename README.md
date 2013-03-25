@@ -72,6 +72,25 @@ Add with maven:
 ```
 
 
+### hegemon-stdlib
+
+When you're writing a lot of JavaScript that interacts with Java, it's useful to have a set of standard libraries
+that handles the language bridge gracefully. `hegemon-stdlib` in 0.0.2 provides methods to handle Java and JS sequences
+seamlessly through it's `hegemon/sequence` [module](hegemon-stdlib/src/main/resources/javascript/hegemon/sequence.js).
+
+Add with maven:
+
+```xml
+<dependencies>
+  <dependency>
+    <groupId>com.cueup.hegemon</groupId>
+    <artifactId>hegemon-stdlib</artifactId>
+    <version>0.0.2</version>
+  </dependency>
+</dependencies>
+```
+
+
 ### hegemon-testing
 
 If you're going to have production code in JavaScript, you're going to
