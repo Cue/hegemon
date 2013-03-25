@@ -1,5 +1,36 @@
 0.0.2-SNAPSHOT
- * Switch to slf4j as our logging facade (from commons-logging)
+  hegemon-core
+    Breaking Changes:
+      * New loading semantics and module system. Removes `load` method which
+        evaluated a loaded script into the current environment. Adds `core.load` which
+        returns an object. [kevinclark in 9bfa8]
+
+        See [Script.java](hegemon-core/src/main/java/com/cueup/hegemon/Script.java) for more.
+
+      * Loading now throws exceptions on circular dependencies.
+      * 'hegemon/json' now a module.
+      * Require names for scripts (for better stack traces) [robbywalker in b9f96]
+
+    Other Changes:
+      * Switch to slf4j as our logging facade (from commons-logging) [stefanp in 6fb53]
+      * Updates jackson to 2.1.1 from 1.9.8. [mcvet in 99c878]
+      * [NEW] PathScriptLocator - a simple locator for dev environments. [robbywalker in 049ce]
+        See hegemon-core/src/main/java/com/cueup/hegemon/PathScriptLocator.java
+      * [NEW] hegemon/json provides 'roundtripJson' and caches mapper object.
+
+   hegemon-test-server:
+     * Gives a handy list of tests via class scanning at '/' endpoint. [robbywalker in 33ecb8]
+     * More convenient URLs. [robbywalker in a6cb7]
+
+
+   hegemon-testing:
+     * HegemonRunner supports JUnit 4. [robbywalker in 8dafb]
+
+
+   hegemon-stdlib:
+     * First release!
+     * [NEW] ['hegemon/sequence'](hegemon-stdlib/src/main/resources/javascript/hegemon/sequence.js) module.
+
 
 0.0.1 released - 10/19/12
  * First release of hegmon-{core,testing,testserver,annotations,guice}
