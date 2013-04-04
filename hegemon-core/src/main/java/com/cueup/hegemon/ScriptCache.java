@@ -85,7 +85,6 @@ public class ScriptCache {
   /**
    * Get a cached script.
    * @param script the name of the script to load.
-   * @param reload whether or not to reload the script cleanly.
    * @return the Script with the given name.
    * @throws LoadError if the script file can't be located.
    * @throws ScriptException if the script doesn't evaluate correctly.
