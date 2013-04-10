@@ -39,7 +39,6 @@ public class ScriptCache {
     this.cache = CacheBuilder.newBuilder().build(new CacheLoader<String, Script>() {
       @Override
       public Script load(String key) throws Exception {
-        // TODO(robbyw): Dependencies should be managed elsewhere.
         return new Script(key, loadPath.load(key), loadPath);
       }
     });
