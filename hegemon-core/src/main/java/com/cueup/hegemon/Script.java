@@ -146,7 +146,7 @@ public class Script {
    * @throws LoadError when files don't load properly.
    */
   public Script(final String name, final String source) throws LoadError {
-    this(name, source, LoadPath.defaultPath());
+    this(name, source, LoadPaths.defaultPath());
   }
 
   /**

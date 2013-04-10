@@ -52,7 +52,7 @@ public class ScriptTest {
 
   @Test
   public void loadViaGlobalFilesImportsModuleSymbol() throws Exception {
-    final Script s = new Script("test", "function tester() { return test.me(); }", LoadPath.defaultPath(), "hegemon/test");
+    final Script s = new Script("test", "function tester() { return test.me(); }", LoadPaths.defaultPath(), "hegemon/test");
     Assert.assertEquals("here", s.run("tester"));
   }
 
@@ -79,7 +79,7 @@ public class ScriptTest {
 
   @Test(expected = RuntimeException.class)
   public void circularDependencyThrowsException() throws Exception {
-    new Script("test", "", LoadPath.defaultPath(), "hegemon/testCircleA");
+    new Script("test", "", LoadPaths.defaultPath(), "hegemon/testCircleA");
   }
 }
 
