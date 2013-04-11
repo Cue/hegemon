@@ -116,6 +116,7 @@ public class Script {
   public static Context enterContext() {
     final Context context = Context.enter();
     context.setLanguageVersion(Context.VERSION_1_8);
+    context.setOptimizationLevel(1);
     return context;
   }
 
