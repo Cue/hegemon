@@ -1,3 +1,9 @@
+0.0.3-SNAPSHOT
+
+  hegemon-core
+    Experiment: enable Rhino optimizer [stefanp in 05b8d]
+
+
 0.0.2-SNAPSHOT
   hegemon-core
     Breaking Changes:
