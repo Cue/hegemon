@@ -285,6 +285,22 @@ public class Script {
    * @return the result of the function call.
    */
   public Object run(final String functionName, final Object... values) {
+    return this.run(functionName, 0, 0, null, values);
+  }
+
+  /**
+   * Run the given function by name in the current context.
+   * @param functionName - the name of the function to run.
+   * @param optimizationLevel - rhino optimization level
+   * @param instructionThreshold - call ScriptExecutionObserver.tick() approximately every N instructions
+   * @param observer - a ScriptExecutionObserver instance
+   * @param values - the arguments passed to the function.
+   * @return the result of the function call.
+   */
+  public Object run(final String functionName,
+                    int optimizationLevel,
+                    int instructionThreshold, ScriptExecutionObserver observer,
+                    final Object... values) {
     // Create a local copy of the bindings so we can multi-thread.
     Context context = enterContext();
 
