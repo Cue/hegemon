@@ -29,7 +29,9 @@ public class HegemonContextFactory extends org.mozilla.javascript.ContextFactory
     Context context = super.makeContext();
     context.setLanguageVersion(this.scriptOptions.getVersion());
     context.setOptimizationLevel(this.scriptOptions.getOptimizationLevel());
-    context.setInstructionObserverThreshold(this.scriptOptions.getInstructionObserverThreshold());
+    if (this.scriptOptions.getExecutionObserver() != null) {
+      context.setInstructionObserverThreshold(this.scriptOptions.getInstructionObserverThreshold());
+    }
 
     return context;
   }
