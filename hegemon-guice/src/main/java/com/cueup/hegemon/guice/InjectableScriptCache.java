@@ -20,6 +20,7 @@ import com.cueup.hegemon.LoadError;
 import com.cueup.hegemon.LoadPath;
 import com.cueup.hegemon.Script;
 import com.cueup.hegemon.ScriptCache;
+import com.cueup.hegemon.ScriptOptions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -40,6 +41,13 @@ public class InjectableScriptCache extends ScriptCache {
     super(loadPath);
   }
 
+  /**
+   * Simple constructor with options.
+   */
+  @Inject
+  public InjectableScriptCache(final LoadPath loadPath, final ScriptOptions options) {
+    super(loadPath, options);
+  }
 
   @Override
   public Script get(String script, boolean reload) throws LoadError, ScriptException {

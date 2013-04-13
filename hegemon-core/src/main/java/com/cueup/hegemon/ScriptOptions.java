@@ -12,6 +12,8 @@ public class ScriptOptions {
   private final int instructionObserverThreshold;
   private final ScriptExecutionObserver executionObserver;
 
+  public static final int VERSION_1_8 = Context.VERSION_1_8;
+
   public static final ScriptOptions DEFAULT_OPTIONS = ScriptOptions.builder()
       .setVersion(Context.VERSION_1_8)
       .setOptimizationLevel(0)

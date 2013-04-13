@@ -1,5 +1,5 @@
 package com.cueup.hegemon;
 
-interface ScriptExecutionObserver {
+public interface ScriptExecutionObserver {
   void tick();
 }
