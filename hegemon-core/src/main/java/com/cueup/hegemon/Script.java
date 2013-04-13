@@ -150,7 +150,7 @@ public class Script {
                 final String source,
                 final LoadPath loadPath,
                 final String... globalFiles) throws LoadError {
-    this(new ScriptCache(loadPath), name, source, loadPath, globalFiles);
+    this(new ScriptCache(loadPath), name, source, globalFiles);
   }
 
     /**
@@ -161,20 +161,19 @@ public class Script {
      * will be injected into the environment. For example, passing a name to globalFiles like "foo/bar/baz" will result
      * in `baz` being made available in the script, just as `let baz = core.load('foo/bar/baz');` had been written.
      *
+     * @param scriptCache - The script cache to use.
      * @param name - The name of the script.
      * @param source - The source code to be run.
-     * @param loadPath - How to find any files loaded.
      * @param globalFiles - Files to load to run this source.
      * @throws LoadError when files don't load properly.
      */
   public Script(final ScriptCache scriptCache,
                 final String name,
                 final String source,
-                final LoadPath loadPath,
                 final String... globalFiles) throws LoadError {
     this.scriptCache = scriptCache;
     this.name = name;
-    this.loadPath = loadPath;
+    this.loadPath = this.scriptCache.getLoadPath();
     this.loaded = Sets.newHashSet();
     this.loading = Sets.newHashSet();
     this.moduleCache = Maps.newHashMap();

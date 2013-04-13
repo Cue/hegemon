@@ -34,6 +34,7 @@ public class ScriptCache { // todo : rename to scriptloader
   private final LoadingCache<String, Script> cache;
   private final HegemonContextFactory contextFactory;
   private final Scriptable parentScope;
+  private final LoadPath loadPath;
 
   /**
    * Create a ScriptCache that loads scripts from the given LoadPath.
@@ -48,6 +49,7 @@ public class ScriptCache { // todo : rename to scriptloader
    * @param loadPath the LoadPath to load files from.
    */
   public ScriptCache(final LoadPath loadPath, final ScriptOptions scriptOptions) {
+    this.loadPath = loadPath;
     this.scriptOptions = scriptOptions;
     this.contextFactory = new HegemonContextFactory(this.scriptOptions);
 
@@ -74,6 +76,9 @@ public class ScriptCache { // todo : rename to scriptloader
     Context.exit();
   }
 
+  public LoadPath getLoadPath() {
+    return this.loadPath;
+  }
 
   /**
    * Clear the cache.
