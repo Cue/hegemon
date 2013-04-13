@@ -92,14 +92,14 @@ public class HegemonRunner extends ParentRunner<String> {
 
     @Override
     public void evaluate() throws Exception { // lint: disable=IllegalThrowsCheck
-      Script.enterContext();
+      this.script.enterContext();
       try {
         this.script.run("unittest.setTestInstance", this.instance);
         this.script.run(this.name, this.arguments);
       } catch (Throwable t) { //lint: disable=IllegalCatchCheck
         throw new RuntimeException(t);
       } finally {
-        Script.exitContext();
+        this.script.exitContext();
       }
     }
 
