@@ -96,48 +96,30 @@ public class Script {
 
   private final Map<String, Object> moduleCache;
 
-  /**
-   * Where we keep values that need to exist cross script invocations.
-   */
-  @ReferencedByJavascript
-  public static final Cache<ValueName, Object> STATIC_VALUES =
-      CacheBuilder.newBuilder().build();
+  private final ScriptCache scriptCache;
 
 
   // TODO(kevinclark): lambda l: try: l(enterContext()) finally: exitContext()
+
   // Use these wrappers instead of Context.enter / Context.exit
   // to ensure correct version is used.
-
 
   /**
    * Enter a new lexical context.
    * @return the context object.
    */
-  public static Context enterContext() {
-    final Context context = Context.enter();
-    context.setLanguageVersion(Context.VERSION_1_8);
-    context.setOptimizationLevel(1);
-    return context;
+  public Context enterContext() {
+    return this.scriptCache.enterContext();
   }
 
 
   /**
    * Exit the current context.
    */
-  public static void exitContext() {
-    Context.exit();
+  public void exitContext() {
+    this.scriptCache.exitContect();
   }
 
-  private static final Scriptable PARENT_SCOPE;
-
-  static {
-    Context context = enterContext();
-    try {
-      PARENT_SCOPE = context.initStandardObjects();
-    } finally {
-      exitContext();
-    }
-  }
 
 
   /**
@@ -168,8 +150,30 @@ public class Script {
                 final String source,
                 final LoadPath loadPath,
                 final String... globalFiles) throws LoadError {
+    this(new ScriptCache(loadPath), name, source, globalFiles);
+  }
+
+    /**
+     * Load a new script context from a source, found with a locator,
+     * loading globalFiles. 'hegemon/core' is loaded by default.
+     *
+     * For each file in globalFiles, a module will be loaded and a variable with the name of the globalFile's basename
+     * will be injected into the environment. For example, passing a name to globalFiles like "foo/bar/baz" will result
+     * in `baz` being made available in the script, just as `let baz = core.load('foo/bar/baz');` had been written.
+     *
+     * @param scriptCache - The script cache to use.
+     * @param name - The name of the script.
+     * @param source - The source code to be run.
+     * @param globalFiles - Files to load to run this source.
+     * @throws LoadError when files don't load properly.
+     */
+  public Script(final ScriptCache scriptCache,
+                final String name,
+                final String source,
+                final String... globalFiles) throws LoadError {
+    this.scriptCache = scriptCache;
     this.name = name;
-    this.loadPath = loadPath;
+    this.loadPath = this.scriptCache.getLoadPath();
     this.loaded = Sets.newHashSet();
     this.loading = Sets.newHashSet();
     this.moduleCache = Maps.newHashMap();
@@ -253,9 +257,9 @@ public class Script {
 
 
   private Scriptable createScope(Context context, boolean includeCore) throws LoadError {
-    Scriptable newScope = context.newObject(PARENT_SCOPE);
+    Scriptable newScope = context.newObject(this.scriptCache.getParentScope());
     newScope.setParentScope(null);
-    newScope.setPrototype(PARENT_SCOPE);
+    newScope.setPrototype(this.scriptCache.getParentScope());
     putCoreObjects(newScope, includeCore);
     return newScope;
   }

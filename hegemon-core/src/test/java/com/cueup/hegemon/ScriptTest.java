@@ -81,5 +81,46 @@ public class ScriptTest {
   public void circularDependencyThrowsException() throws Exception {
     new Script("test", "", LoadPaths.defaultPath(), "hegemon/testCircleA");
   }
+
+
+  static class Observer implements ScriptExecutionObserver {
+    public int tickCounter = 0;
+
+    public void tick() {
+      this.tickCounter++;
+    }
+  }
+
+
+  @Test
+  public void executionObserverIsCalledWhenUsingCodeGen() throws Exception {
+    Observer observer = new Observer();
+    ScriptOptions options = ScriptOptions.builder()
+                                         .setOptimizationLevel(1)
+                                         .observeExecution(1, observer)
+                                         .build();
+    ScriptCache cache = new ScriptCache(LoadPaths.defaultPath(), options);
+    Script s = new Script(cache, "test", "function tester() { var total=0; for(var i=0; i<1024; i++) { total++; } return total; }");
+    Double result = (Double) s.run("tester");
+    Assert.assertEquals(result.doubleValue(), 1024.0, 0.0);
+    Assert.assertTrue("About 3000 instructions should have been executed", observer.tickCounter > 3000);
+  }
+
+
+  @Test
+  public void executionObserverIsCalledWhenUsingInterpreter() throws Exception {
+    Observer observer = new Observer();
+    ScriptOptions options = ScriptOptions.builder()
+                                         .setOptimizationLevel(-1)
+                                         .observeExecution(1, observer)
+                                         .build();
+    ScriptCache cache = new ScriptCache(LoadPaths.defaultPath(), options);
+    Script s = new Script(cache, "test", "function tester() { var total=0; for(var i=0; i<1024; i++) { total++; } return total; }");
+    Double result = (Double) s.run("tester");
+    Assert.assertEquals(result.doubleValue(), 1024.0, 0.0);
+    Assert.assertTrue("About 1024 instructions should have been executed", observer.tickCounter > 1000);
+  }
+
+
 }
 
