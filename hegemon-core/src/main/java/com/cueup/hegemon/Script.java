@@ -17,12 +17,12 @@
 package com.cueup.hegemon;
 
 import com.cueup.hegemon.annotations.ReferencedByJavascript;
-import com.google.common.base.Objects;
+import com.cueup.hegemon.compilation.CachedScriptCompilation;
+import com.cueup.hegemon.compilation.ScriptCompilation;
+import com.cueup.hegemon.compilation.SimpleScriptCompilation;
 import com.google.common.base.Splitter;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.mozilla.javascript.Context;
@@ -34,7 +34,6 @@ import org.mozilla.javascript.Wrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -72,11 +71,6 @@ public class Script {
   private static final Logger LOG = LoggerFactory.getLogger(Script.class);
 
   /**
-   * The name of this script.
-   */
-  private final String name;
-
-  /**
    * Allows for user defined script location.
    */
   private final LoadPath loadPath;
@@ -99,67 +93,7 @@ public class Script {
 
   private final Map<String, Object> moduleCache;
 
-  private final int optimizationLevel;
-
-
-  /**
-   * We cache compiled scripts to save time during initialization and tests.
-   */
-  private class CompilationKey {
-
-    private final WeakReference<Context> c;
-    private final String source;
-    private final String name;
-    private final int optimizationLevel;
-    private final int hash;
-
-    public CompilationKey(
-        Context c, String source, String name, int optimizationLevel) {
-      this.c = new WeakReference<Context>(c);
-      this.source = source;
-      this.name = name;
-      this.optimizationLevel = optimizationLevel;
-      this.hash = Objects.hashCode(System.identityHashCode(c), source, name, optimizationLevel);
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-
-      CompilationKey other = (CompilationKey) o;
-
-      return this.hash == other.hash
-          && this.optimizationLevel == other.optimizationLevel
-          && this.c.get() == other.c.get() && this.c.get() != null
-          && this.name.equals(other.name)
-          && this.source.equals(other.source);
-    }
-
-
-    @Override
-    public int hashCode() {
-      return this.hash;
-    }
-  }
-
-
-  private static LoadingCache<CompilationKey, org.mozilla.javascript.Script> COMPILATION_CACHE =
-      CacheBuilder.newBuilder()
-          .maximumSize(500)
-          .build(new CacheLoader<CompilationKey, org.mozilla.javascript.Script>() {
-            @Override
-            public org.mozilla.javascript.Script load(CompilationKey key) throws Exception {
-              Context c = key.c.get();
-              assert c != null;
-              return c.compileString(key.source, key.name, 1, null);
-            }
-          });
+  private final ScriptCompilation scriptCompilation;
 
 
   @ReferencedByJavascript
@@ -174,13 +108,11 @@ public class Script {
 
   /**
    * Enter a new lexical context.
-   * @param optimizationLevel the optimization level to use.
    * @return the context object.
    */
-  public static Context enterContext(int optimizationLevel) {
+  public static Context enterContext() {
     final Context context = Context.enter();
     context.setLanguageVersion(Context.VERSION_1_8);
-    context.setOptimizationLevel(optimizationLevel);
     return context;
   }
 
@@ -195,7 +127,7 @@ public class Script {
   private static final Scriptable PARENT_SCOPE;
 
   static {
-    Context context = enterContext(9);
+    Context context = enterContext();
     try {
       PARENT_SCOPE = context.initStandardObjects();
     } finally {
@@ -215,7 +147,7 @@ public class Script {
   }
 
   /**
-   * @see Script#Script(String, String, int, LoadPath, String...)
+   * @see Script#Script(String, String, ScriptCompilation, LoadPath, String...)
    *
    * @param name - The name of the script.
    * @param source - The source code to be run.
@@ -227,7 +159,7 @@ public class Script {
                 final String source,
                 final LoadPath loadPath,
                 final String... globalFiles) throws LoadError {
-    this(name, source, 0, loadPath, globalFiles);
+    this(name, source, new CachedScriptCompilation(new SimpleScriptCompilation(0)), loadPath, globalFiles);
   }
 
 
@@ -241,25 +173,24 @@ public class Script {
    *
    * @param name - The name of the script.
    * @param source - The source code to be run.
-   * @param optimizationLevel - The optimization level to use.
+   * @param scriptCompilation - The compilation strategy to use.
    * @param loadPath - How to find any files loaded.
    * @param globalFiles - Files to load to run this source.
    * @throws LoadError when files don't load properly.
    */
   public Script(final String name,
                 final String source,
-                final int optimizationLevel,
+                final ScriptCompilation scriptCompilation,
                 final LoadPath loadPath,
                 final String... globalFiles) throws LoadError {
-    this.name = name;
     this.loadPath = loadPath;
     this.loaded = Sets.newHashSet();
     this.loading = Sets.newHashSet();
     this.moduleCache = Maps.newHashMap();
-    this.optimizationLevel = optimizationLevel;
+    this.scriptCompilation = scriptCompilation;
 
 
-    Context context = enterContext(optimizationLevel);
+    Context context = enterContext();
     try {
       this.localScope = createScope(context, true);
 
@@ -269,7 +200,7 @@ public class Script {
         ScriptableObject.putProperty(this.localScope, moduleName, load(globalFile));
       }
 
-      cachedEvaluateString(context, source, this.name, this.localScope);
+      cachedEvaluateString(context, source, name, this.localScope);
     } finally {
       exitContext();
     }
@@ -277,9 +208,7 @@ public class Script {
 
 
   private void cachedEvaluateString(Context context, String code, String filename, Scriptable scope) {
-    COMPILATION_CACHE
-        .getUnchecked(new CompilationKey(context, code, filename, this.optimizationLevel))
-        .exec(context, scope);
+    this.scriptCompilation.compile(context, filename, code).exec(context, scope);
   }
 
 
@@ -317,7 +246,7 @@ public class Script {
 
     String filename = scriptName + ".js";
     String moduleName = moduleNameFor(scriptName);
-    Context context = enterContext(this.optimizationLevel);
+    Context context = enterContext();
     try {
       Scriptable newScope = createScope(context, !"hegemon/core".equals(scriptName));
 
@@ -378,7 +307,7 @@ public class Script {
    */
   public Object run(final String functionReference, final Object... values) {
     // Create a local copy of the bindings so we can multi-thread.
-    Context context = enterContext(this.optimizationLevel);
+    Context context = enterContext();
     try {
       Scriptable object = this.localScope;
       Iterator<String> parts = Splitter.on('.').split(functionReference).iterator();
@@ -398,7 +327,7 @@ public class Script {
 
   public Object call(final Object object, final String property, final Object... values) {
     // Create a local copy of the bindings so we can multi-thread.
-    Context context = enterContext(this.optimizationLevel);
+    Context context = enterContext();
     try {
       return unwrap(ScriptableObject.callMethod(context, (Scriptable) object, property, values));
     } finally {

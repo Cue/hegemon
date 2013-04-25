@@ -20,6 +20,9 @@ import com.cueup.hegemon.LoadError;
 import com.cueup.hegemon.LoadPath;
 import com.cueup.hegemon.LoadPaths;
 import com.cueup.hegemon.Script;
+import com.cueup.hegemon.compilation.CachedScriptCompilation;
+import com.cueup.hegemon.compilation.ClassFileScriptCompilation;
+import com.cueup.hegemon.compilation.ScriptCompilation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.junit.After;
@@ -36,6 +39,7 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
+import java.io.File;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -92,7 +96,7 @@ public class HegemonRunner extends ParentRunner<String> {
 
     @Override
     public void evaluate() throws Exception { // lint: disable=IllegalThrowsCheck
-      Script.enterContext(-1);
+      Script.enterContext();
       try {
         this.script.run("unittest.setTestInstance", this.instance);
         this.script.run(this.name, this.arguments);
@@ -105,6 +109,8 @@ public class HegemonRunner extends ParentRunner<String> {
 
   }
 
+  public static final ScriptCompilation SCRIPT_COMPILATION = new CachedScriptCompilation(
+      new ClassFileScriptCompilation(new File("/tmp/hegemon-script-classes")));
 
   private final Script testScript;
 
@@ -160,7 +166,7 @@ public class HegemonRunner extends ParentRunner<String> {
     } else {
       try {
         String source = loadPath.load(scriptData.filename() + ".js");
-        this.testScript = new Script(scriptData.filename(), source, -1, loadPath, "hegemon/unittest");
+        this.testScript = new Script(scriptData.filename(), source, SCRIPT_COMPILATION, loadPath, "hegemon/unittest");
       } catch (LoadError e) {
         throw new InitializationError(e);
       }

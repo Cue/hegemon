@@ -16,6 +16,9 @@
 
 package com.cueup.hegemon;
 
+import com.cueup.hegemon.compilation.CachedScriptCompilation;
+import com.cueup.hegemon.compilation.ScriptCompilation;
+import com.cueup.hegemon.compilation.SimpleScriptCompilation;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -31,25 +34,28 @@ public class ScriptCache {
   private final LoadingCache<String, Script> cache;
 
 
+  private static final ScriptCompilation DEFAULT_COMPILATION = new CachedScriptCompilation(
+      new SimpleScriptCompilation(9));
+
   /**
    * Create a ScriptCache that loads scripts from the given LoadPath.
    * @param loadPath the LoadPath to load files from.
    */
   public ScriptCache(final LoadPath loadPath) {
-    this(loadPath, 1);
+    this(loadPath, DEFAULT_COMPILATION);
   }
 
 
   /**
    * Create a ScriptCache that loads scripts from the given LoadPath.
    * @param loadPath the LoadPath to load files from.
-   * @param optimizationLevel the optimization level to use for cached scripts.
+   * @param scriptCompilation the strategy to use to compile scripts.
    */
-  public ScriptCache(final LoadPath loadPath, final int optimizationLevel) {
+  public ScriptCache(final LoadPath loadPath, final ScriptCompilation scriptCompilation) {
     this.cache = CacheBuilder.newBuilder().build(new CacheLoader<String, Script>() {
       @Override
       public Script load(String key) throws Exception {
-        return new Script(key, loadPath.load(key), optimizationLevel, loadPath);
+        return new Script(key, loadPath.load(key), scriptCompilation, loadPath);
       }
     });
   }
