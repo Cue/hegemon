@@ -19,16 +19,16 @@ public class CachedScriptCompilation implements ScriptCompilation {
    */
   private class CompilationKey {
 
-    private final WeakReference<Context> c;
+    private final WeakReference<Context> context;
     private final String source;
     private final String name;
     private final int hash;
 
-    public CompilationKey(Context c, String source, String name) {
-      this.c = new WeakReference<Context>(c);
+    public CompilationKey(Context context, String source, String name) {
+      this.context = new WeakReference<Context>(context);
       this.source = source;
       this.name = name;
-      this.hash = Objects.hashCode(System.identityHashCode(c), source, name);
+      this.hash = Objects.hashCode(source, name);
     }
 
 
@@ -44,7 +44,6 @@ public class CachedScriptCompilation implements ScriptCompilation {
       CompilationKey other = (CompilationKey) o;
 
       return this.hash == other.hash
-          && this.c.get() == other.c.get() && this.c.get() != null
           && this.name.equals(other.name)
           && this.source.equals(other.source);
     }
@@ -65,7 +64,7 @@ public class CachedScriptCompilation implements ScriptCompilation {
         .build(new CacheLoader<CompilationKey, Script>() {
           @Override
           public org.mozilla.javascript.Script load(CompilationKey key) throws Exception {
-            return compilation.compile(key.c.get(), key.name, key.source);
+            return compilation.compile(key.context.get(), key.name, key.source);
           }
         });
   }
