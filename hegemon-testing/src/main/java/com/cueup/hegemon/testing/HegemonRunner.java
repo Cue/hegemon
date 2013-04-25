@@ -160,7 +160,7 @@ public class HegemonRunner extends ParentRunner<String> {
     } else {
       try {
         String source = loadPath.load(scriptData.filename() + ".js");
-        this.testScript = new Script(scriptData.filename(), source, loadPath, "hegemon/unittest");
+        this.testScript = new Script(scriptData.filename(), source, -1, loadPath, "hegemon/unittest");
       } catch (LoadError e) {
         throw new InitializationError(e);
       }
