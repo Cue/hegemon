@@ -96,6 +96,9 @@ public class Script {
 
   private final Map<String, Object> moduleCache;
 
+  private final int optimizationLevel;
+
+
   /**
    * Where we keep values that need to exist cross script invocations.
    */
@@ -111,12 +114,13 @@ public class Script {
 
   /**
    * Enter a new lexical context.
+   * @param optimizationLevel the optimization level to use.
    * @return the context object.
    */
-  public static Context enterContext() {
+  public static Context enterContext(int optimizationLevel) {
     final Context context = Context.enter();
     context.setLanguageVersion(Context.VERSION_1_8);
-    context.setOptimizationLevel(1);
+    context.setOptimizationLevel(optimizationLevel);
     return context;
   }
 
@@ -131,7 +135,7 @@ public class Script {
   private static final Scriptable PARENT_SCOPE;
 
   static {
-    Context context = enterContext();
+    Context context = enterContext(9);
     try {
       PARENT_SCOPE = context.initStandardObjects();
     } finally {
@@ -151,12 +155,7 @@ public class Script {
   }
 
   /**
-   * Load a new script context from a source, found with a locator,
-   * loading globalFiles. 'hegemon/core' is loaded by default.
-   *
-   * For each file in globalFiles, a module will be loaded and a variable with the name of the globalFile's basename
-   * will be injected into the environment. For example, passing a name to globalFiles like "foo/bar/baz" will result
-   * in `baz` being made available in the script, just as `let baz = core.load('foo/bar/baz');` had been written.
+   * @see Script#Script(String, String, int, LoadPath, String...)
    *
    * @param name - The name of the script.
    * @param source - The source code to be run.
@@ -168,14 +167,39 @@ public class Script {
                 final String source,
                 final LoadPath loadPath,
                 final String... globalFiles) throws LoadError {
+    this(name, source, 0, loadPath, globalFiles);
+  }
+
+
+  /**
+   * Load a new script context from a source, found with a locator,
+   * loading globalFiles. 'hegemon/core' is loaded by default.
+   *
+   * For each file in globalFiles, a module will be loaded and a variable with the name of the globalFile's basename
+   * will be injected into the environment. For example, passing a name to globalFiles like "foo/bar/baz" will result
+   * in `baz` being made available in the script, just as `let baz = core.load('foo/bar/baz');` had been written.
+   *
+   * @param name - The name of the script.
+   * @param source - The source code to be run.
+   * @param optimizationLevel - The optimization level to use.
+   * @param loadPath - How to find any files loaded.
+   * @param globalFiles - Files to load to run this source.
+   * @throws LoadError when files don't load properly.
+   */
+  public Script(final String name,
+                final String source,
+                final int optimizationLevel,
+                final LoadPath loadPath,
+                final String... globalFiles) throws LoadError {
     this.name = name;
     this.loadPath = loadPath;
     this.loaded = Sets.newHashSet();
     this.loading = Sets.newHashSet();
     this.moduleCache = Maps.newHashMap();
+    this.optimizationLevel = optimizationLevel;
 
 
-    Context context = enterContext();
+    Context context = enterContext(optimizationLevel);
     try {
       this.localScope = createScope(context, true);
 
@@ -226,7 +250,7 @@ public class Script {
 
     String filename = scriptName + ".js";
     String moduleName = moduleNameFor(scriptName);
-    Context context = enterContext();
+    Context context = enterContext(this.optimizationLevel);
     try {
       Scriptable newScope = createScope(context, !"hegemon/core".equals(scriptName));
 
@@ -286,7 +310,7 @@ public class Script {
    */
   public Object run(final String functionName, final Object... values) {
     // Create a local copy of the bindings so we can multi-thread.
-    Context context = enterContext();
+    Context context = enterContext(this.optimizationLevel);
 
     try {
       final Scriptable localScope = context.newObject(this.localScope);
