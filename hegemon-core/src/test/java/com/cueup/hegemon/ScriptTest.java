@@ -36,6 +36,13 @@ public class ScriptTest {
 
 
   @Test
+  public void functionReferenceChainShouldWork() throws ScriptException, LoadError {
+    Script s = new Script("test", "x = {a: {b: {c: function(a, b) { return a + b } } } }");
+    Assert.assertEquals(5.0, s.run("x.a.b.c", 2, 3));
+  }
+
+
+  @Test
   public void concurrentRunsShouldNotEffectOneAnother() throws ScriptException, InterruptedException, LoadError {
     final Script s = new Script("test", "function add(a, b) { return a + b }");
     final Random random = new Random();

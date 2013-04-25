@@ -17,13 +17,12 @@
 package com.cueup.hegemon;
 
 import com.cueup.hegemon.annotations.ReferencedByJavascript;
-import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
+import com.google.common.base.Splitter;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.mozilla.javascript.Context;
@@ -36,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -326,7 +325,7 @@ public class Script {
 
       cachedEvaluateString(context, code, filename, newScope);
       try {
-        Object preWrap = context.evaluateString(newScope, moduleName, "import " + moduleName, 1, null);
+        Object preWrap = ScriptableObject.getProperty(newScope, moduleName);
         Object module = unwrap(preWrap);
         this.moduleCache.put(scriptName, module);
         return module;
@@ -373,33 +372,35 @@ public class Script {
 
   /**
    * Run the given function by name in the current context.
-   * @param functionName - the name of the function to run.
+   * @param functionReference - the name of the function to run.
    * @param values - the arguments passed to the function.
    * @return the result of the function call.
    */
-  public Object run(final String functionName, final Object... values) {
+  public Object run(final String functionReference, final Object... values) {
     // Create a local copy of the bindings so we can multi-thread.
     Context context = enterContext(this.optimizationLevel);
-
     try {
-      final Scriptable localScope = context.newObject(this.localScope);
-      localScope.setPrototype(this.localScope);
-      localScope.setParentScope(null);
-
-      List<String> names = Lists.newArrayList();
-      for (int i = 0; i < values.length; i++) {
-        final Object value = values[i];
-        if (value instanceof String || value instanceof Number
-            || value instanceof Boolean || value instanceof Scriptable) {
-          ScriptableObject.putProperty(localScope, "__p" + i, values[i]);
+      Scriptable object = this.localScope;
+      Iterator<String> parts = Splitter.on('.').split(functionReference).iterator();
+      while (parts.hasNext()) {
+        String property = parts.next();
+        if (parts.hasNext()) {
+          object = (Scriptable) ScriptableObject.getProperty(object, property);
         } else {
-          ScriptableObject.putProperty(localScope, "__p" + i,
-              Context.javaToJS(values[i], localScope));
+          return unwrap(ScriptableObject.callMethod(context, object, property, values));
         }
-        names.add("__p" + i);
       }
-      String code = functionName + "(" + Joiner.on(",").join(names) + ");";
-      return unwrap(context.evaluateString(localScope, code, this.name, 1, null));
+      throw new IllegalArgumentException("functionName is empty");
+    } finally {
+      exitContext();
+    }
+  }
+
+  public Object call(final Object object, final String property, final Object... values) {
+    // Create a local copy of the bindings so we can multi-thread.
+    Context context = enterContext(this.optimizationLevel);
+    try {
+      return unwrap(ScriptableObject.callMethod(context, (Scriptable) object, property, values));
     } finally {
       exitContext();
     }
