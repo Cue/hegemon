@@ -299,6 +299,15 @@ public class Script {
   }
 
 
+  private Object[] jsValues(Object[] values) {
+    Object[] jsValues = new Object[values.length];
+    for (int i = 0; i < values.length; i++) {
+      jsValues[i] = Context.javaToJS(values[i], this.localScope);
+    }
+    return jsValues;
+  }
+
+
   /**
    * Run the given function by name in the current context.
    * @param functionReference - the name of the function to run.
@@ -316,7 +325,8 @@ public class Script {
         if (parts.hasNext()) {
           object = (Scriptable) ScriptableObject.getProperty(object, property);
         } else {
-          return unwrap(ScriptableObject.callMethod(context, object, property, values));
+
+          return unwrap(ScriptableObject.callMethod(context, object, property, jsValues(values)));
         }
       }
       throw new IllegalArgumentException("functionName is empty");
@@ -329,7 +339,7 @@ public class Script {
     // Create a local copy of the bindings so we can multi-thread.
     Context context = enterContext();
     try {
-      return unwrap(ScriptableObject.callMethod(context, (Scriptable) object, property, values));
+      return unwrap(ScriptableObject.callMethod(context, (Scriptable) object, property, jsValues(values)));
     } finally {
       exitContext();
     }
