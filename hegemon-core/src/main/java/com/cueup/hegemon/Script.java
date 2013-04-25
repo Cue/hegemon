@@ -18,8 +18,11 @@ package com.cueup.hegemon;
 
 import com.cueup.hegemon.annotations.ReferencedByJavascript;
 import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -32,6 +35,7 @@ import org.mozilla.javascript.Wrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -100,8 +104,65 @@ public class Script {
 
 
   /**
-   * Where we keep values that need to exist cross script invocations.
+   * We cache compiled scripts to save time during initialization and tests.
    */
+  private class CompilationKey {
+
+    private final WeakReference<Context> c;
+    private final String source;
+    private final String name;
+    private final int optimizationLevel;
+    private final int hash;
+
+    public CompilationKey(
+        Context c, String source, String name, int optimizationLevel) {
+      this.c = new WeakReference<Context>(c);
+      this.source = source;
+      this.name = name;
+      this.optimizationLevel = optimizationLevel;
+      this.hash = Objects.hashCode(System.identityHashCode(c), source, name, optimizationLevel);
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      CompilationKey other = (CompilationKey) o;
+
+      return this.hash == other.hash
+          && this.optimizationLevel == other.optimizationLevel
+          && this.c.get() == other.c.get() && this.c.get() != null
+          && this.name.equals(other.name)
+          && this.source.equals(other.source);
+    }
+
+
+    @Override
+    public int hashCode() {
+      return this.hash;
+    }
+  }
+
+
+  private static LoadingCache<CompilationKey, org.mozilla.javascript.Script> COMPILATION_CACHE =
+      CacheBuilder.newBuilder()
+          .maximumSize(500)
+          .build(new CacheLoader<CompilationKey, org.mozilla.javascript.Script>() {
+            @Override
+            public org.mozilla.javascript.Script load(CompilationKey key) throws Exception {
+              Context c = key.c.get();
+              assert c != null;
+              return c.compileString(key.source, key.name, 1, null);
+            }
+          });
+
+
   @ReferencedByJavascript
   public static final Cache<ValueName, Object> STATIC_VALUES =
       CacheBuilder.newBuilder().build();
@@ -209,10 +270,17 @@ public class Script {
         ScriptableObject.putProperty(this.localScope, moduleName, load(globalFile));
       }
 
-      context.evaluateString(this.localScope, source, this.name, 1, null);
+      cachedEvaluateString(context, source, this.name, this.localScope);
     } finally {
       exitContext();
     }
+  }
+
+
+  private void cachedEvaluateString(Context context, String code, String filename, Scriptable scope) {
+    COMPILATION_CACHE
+        .getUnchecked(new CompilationKey(context, code, filename, this.optimizationLevel))
+        .exec(context, scope);
   }
 
 
@@ -255,7 +323,8 @@ public class Script {
       Scriptable newScope = createScope(context, !"hegemon/core".equals(scriptName));
 
       String code = this.loadPath.load(filename);
-      context.evaluateString(newScope, code, filename, 1, null);
+
+      cachedEvaluateString(context, code, filename, newScope);
       try {
         Object preWrap = context.evaluateString(newScope, moduleName, "import " + moduleName, 1, null);
         Object module = unwrap(preWrap);
