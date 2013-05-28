@@ -335,6 +335,14 @@ public class Script {
     }
   }
 
+
+  /**
+   * Call a method on an object in the current context.
+   * @param object - the receiver of the call.
+   * @param property - the property we're calling.
+   * @param values - arguments to the method.
+   * @return the result of the method call.
+   */
   public Object call(final Object object, final String property, final Object... values) {
     // Create a local copy of the bindings so we can multi-thread.
     Context context = enterContext();
