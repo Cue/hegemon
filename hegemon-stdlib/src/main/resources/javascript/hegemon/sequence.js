@@ -168,13 +168,14 @@ sequence.findFirst = function(obj, fn) {
 };
 
 /**
+ * Appropriated from Google's Closure googe.array.zip
+ *
  * Creates a new array for which the element at position i is an array of the
  * ith element of the provided arrays.  The returned array will only be as long
  * as the shortest array provided; additional values are ignored.  For example,
  * the result of zipping [1, 2] and [3, 4, 5] is [[1,3], [2, 4]].
  *
- * This is similar to the zip() function in Python.  See {@link
- * http://docs.python.org/library/functions.html#zip}
+ * This is similar to the zip() function in Python.  See {@link http://docs.python.org/library/functions.html#zip}
  *
  * @param {...} var_args Arrays to be combined.
  * @return {!Array.<!Array>} A new array of arrays created from provided arrays.
