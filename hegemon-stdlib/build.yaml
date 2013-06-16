@@ -1,0 +1,6 @@
+default: deps
+targets:
+  deps:
+    type: base.DepsOnly
+    deps:
+    - hegemon
