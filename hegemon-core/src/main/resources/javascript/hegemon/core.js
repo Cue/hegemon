@@ -17,7 +17,9 @@
 core = {};
 
 /**
- * Returns the module requested.
+ * Returns the module requested. Note that this is more like a macro than a function. If you pass in anything other
+ * than a string literal, the hegemon preprocessor  won't know to upload the corresponding file to the server, and
+ * stuff will break.
  * @param name - the name of the module to load.
  * @return {Object} the named module object.
  */
